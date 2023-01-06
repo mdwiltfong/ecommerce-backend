@@ -29,8 +29,8 @@ module.exports = (app) => {
   router.post("/:id", async (req, res, next) => {
     try {
       const id = parseInt(req.params.id);
-      const { username, password, email } = req.body;
-      const user = { id, username, password, email };
+      const { password, email } = req.body;
+      const user = { id, password, email };
 
       const response = await userModel.updateUser(user);
       res.status(200).send(response);
@@ -42,8 +42,8 @@ module.exports = (app) => {
   router.put("/users", async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { username, password, email } = req.body;
-      const user = { id, username, password, email };
+      const { password, email } = req.body;
+      const user = { id, password, email };
 
       const response = await userModel.updateUser(user);
     } catch (err) {

@@ -33,12 +33,12 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (data) => {
-  const { username, email } = data;
+  const { email } = data;
   const saltRounds = 10;
   const password = await bcrypt.hash(data.password, saltRounds);
-  const statement = `INSERT INTO users(username, password, email) 
-      VALUES($1, $2, $3) RETURNING *`;
-  const values = [username, password, email];
+  const statement = `INSERT INTO users(password, email) 
+      VALUES($1, $2) RETURNING *`;
+  const values = [password, email];
 
   try {
     const result = await pool.query(statement, values);
@@ -54,12 +54,12 @@ const createUser = async (data) => {
 };
 
 const updateUser = async (data) => {
-  const { id, username, email } = data;
+  const { id, email } = data;
   const saltRounds = 10;
   password = await bcrypt.hash(data.password, saltRounds);
 
-  const statement = `UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4`;
-  const values = [username, password, email, id];
+  const statement = `UPDATE users SET password = $1, email = $2 WHERE id = $3`;
+  const values = [password, email, id];
 
   try {
     const result = await pool.query(statement, values);
