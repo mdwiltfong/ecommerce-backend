@@ -1,4 +1,6 @@
 const pool = require("../db");
+const createError = require("http-errors");
+const bcrypt = require("bcrypt");
 
 const getUsers = async () => {
   try {
@@ -30,11 +32,34 @@ const getUserById = async (id) => {
   }
 };
 
-const createUser = async () => {
-  const { name, email } = req.body;
-  const statement = `INSERT INTO users(name, email) 
-      VALUES($1, $2) RETURNING *`;
-  const values = [name, email];
+const createUser = async (data) => {
+  const { username, email } = data;
+  const saltRounds = 10;
+  const password = await bcrypt.hash(data.password, saltRounds);
+  const statement = `INSERT INTO users(username, password, email) 
+      VALUES($1, $2, $3) RETURNING *`;
+  const values = [username, password, email];
+
+  try {
+    const result = await pool.query(statement, values);
+    if (result.rows?.length) {
+      return result.rows[0];
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
+
+const updateUser = async (data) => {
+  const { id, username, email } = data;
+  const saltRounds = 10;
+  password = await bcrypt.hash(data.password, saltRounds);
+
+  const statement = `UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4`;
+  const values = [username, password, email, id];
 
   try {
     const result = await pool.query(statement, values);
@@ -48,22 +73,30 @@ const createUser = async () => {
   }
 };
 
-const updateUser = async (user) => {
+const findUserByEmail = async (email) => {
+  const statement = `SELECT * FROM users 
+                        WHERE email = $1  
+                      `;
+  const values = [email];
+
   try {
-    const { id, username, password, email } = user;
-
-    const statement = `UPDATE users SET username = $1, password = $2, email = $3 WHERE id = $4`;
-    const values = [username, password, email, id];
-
     const result = await pool.query(statement, values);
     if (result.rows?.length) {
       return result.rows[0];
-    } else {
-      return null;
     }
+    return null;
   } catch (err) {
     throw new Error(err);
   }
+};
+
+const registerNewUser = async (data) => {
+  const { email } = data;
+  const user = await findUserByEmail(email);
+  if (user) {
+    throw createError(409, `User with email: ${email} already exists!`);
+  }
+  return await createUser(data);
 };
 
 module.exports = {
@@ -71,4 +104,6 @@ module.exports = {
   getUserById,
   createUser,
   updateUser,
+  findUserByEmail,
+  registerNewUser,
 };

@@ -9,7 +9,7 @@ module.exports = (app) => {
   app.use(cors());
 
   // Logging
-  app.use(morgan("combined"));
+  app.use(morgan("dev"));
 
   // Transforms raw string of req.body into JSON
   app.use(bodyParser.json());
