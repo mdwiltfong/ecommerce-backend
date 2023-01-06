@@ -10,7 +10,6 @@ async function startServer() {
   loaders(app);
 
   // Start server
-  console.log(PORT);
   app.listen(PORT, () => {
     console.log(`Server listening on PORT ${PORT}`);
   });
