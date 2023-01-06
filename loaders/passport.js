@@ -20,29 +20,32 @@ module.exports = (app) => {
 
   // Configure local strategy to be use for local login
   passport.use(
-    new LocalStrategy(async (email, password, done) => {
-      // Check for user in PostgreSQL database
-      const user = findUserByEmail(email);
-      if (!user) {
-        // no user found
-        return done(null, false, {
-          message: "No user found with that email",
-        });
-      }
-
-      try {
-        if (await bcrypt.compare(password, user.password)) {
-          // if inputted password matches the database password for that user
-          return done(null, user);
-        } else {
-          // wrong password
-          return done(null, false, { message: "Wrong password." });
+    new LocalStrategy(
+      { usernameField: "email", passwordField: "password" }, //opts
+      async (email, password, done) => {
+        // Check for user in PostgreSQL database
+        const user = await findUserByEmail(email);
+        if (!user) {
+          // no user found
+          return done(null, false, {
+            message: "No user found with that email",
+          });
         }
-        //
-      } catch (err) {
-        return done(err);
+
+        try {
+          if (await bcrypt.compare(password, user.password)) {
+            // if inputted password matches the database password for that user
+            return done(null, user);
+          } else {
+            // wrong password
+            return done(null, false, { message: "Wrong password." });
+          }
+          //
+        } catch (err) {
+          return done(err);
+        }
       }
-    })
+    )
   );
 
   return passport;
