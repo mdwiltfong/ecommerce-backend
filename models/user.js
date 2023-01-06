@@ -34,11 +34,11 @@ const getUserById = async (id) => {
 
 const createUser = async (data) => {
   const { email } = data;
-  const saltRounds = 10;
-  const password = await bcrypt.hash(data.password, saltRounds);
+  const hashedPassword = hashPassword(data.password);
+
   const statement = `INSERT INTO users(password, email) 
       VALUES($1, $2) RETURNING *`;
-  const values = [password, email];
+  const values = [hashedPassword, email];
 
   try {
     const result = await pool.query(statement, values);
@@ -48,18 +48,21 @@ const createUser = async (data) => {
       return null;
     }
   } catch (err) {
-    console.log(err);
     throw new Error(err);
   }
 };
 
+const hashPassword = async (password) => {
+  const saltRounds = 10;
+  return await bcrypt.hash(data.password, saltRounds);
+};
+
 const updateUser = async (data) => {
   const { id, email } = data;
-  const saltRounds = 10;
-  password = await bcrypt.hash(data.password, saltRounds);
+  const hashedPassword = hashPassword(data.password);
 
   const statement = `UPDATE users SET password = $1, email = $2 WHERE id = $3`;
-  const values = [password, email, id];
+  const values = [hashedPassword, email, id];
 
   try {
     const result = await pool.query(statement, values);
@@ -99,6 +102,29 @@ const registerNewUser = async (data) => {
   return await createUser(data);
 };
 
+const loginUser = async (user) => {
+  const { email, password } = user;
+  try {
+    // Check if user exists
+    const user = await findUserByEmail(email);
+
+    // If no user found, reject
+    if (!user) {
+      throw createError(401, "Incorrect username or password");
+    }
+
+    // Check for matching passwords
+    const passwordIsValid = bcrypt.compare(password, user.password);
+    if (!passwordIsValid) {
+      throw createError(401, "Incorrect username or password");
+    }
+
+    return user;
+  } catch (err) {
+    throw createError(500, err);
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -106,4 +132,5 @@ module.exports = {
   updateUser,
   findUserByEmail,
   registerNewUser,
+  loginUser,
 };
