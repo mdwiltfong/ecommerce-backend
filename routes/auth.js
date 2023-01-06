@@ -1,5 +1,5 @@
 const express = require("express");
-const { registerNewUser } = require("../models/user");
+const { registerNewUser, loginUser } = require("../models/user");
 const router = express.Router();
 
 module.exports = (app, passport) => {
@@ -16,22 +16,17 @@ module.exports = (app, passport) => {
   });
 
   // Login Endpoint
-  // router.post(
-  //   "/login",
-  //   passport.authenticate("local"),
-  //   async (req, res, next) => {
-  //     try {
-  //       const { username, password } = req.body;
-
-  //       const response = await AuthServiceInstance.login({
-  //         email: username,
-  //         password,
-  //       });
-
-  //       res.status(200).send(response);
-  //     } catch (err) {
-  //       next(err);
-  //     }
-  //   }
-  // );
+  router.post(
+    "/login",
+    passport.authenticate("local"),
+    async (req, res, next) => {
+      try {
+        const { email, password } = req.body;
+        const response = await loginUser({ email, password });
+        res.status(200).send(response);
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
 };
