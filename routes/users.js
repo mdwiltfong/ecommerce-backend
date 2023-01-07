@@ -9,7 +9,6 @@ module.exports = (app) => {
   router.get("/", async (req, res, next) => {
     try {
       const response = await userModel.getUsers();
-      console.log(response);
       res.status(200).send(response);
     } catch (err) {
       next(err);
