@@ -57,12 +57,12 @@ const hashPassword = async (password) => {
   return await bcrypt.hash(password, saltRounds);
 };
 
-const updateUser = async (data) => {
-  const { id, email } = data;
-  const hashedPassword = hashPassword(data.password);
+const updateUserPassword = async (data) => {
+  const { id } = data;
+  const hashedPassword = await hashPassword(data.password);
 
-  const statement = `UPDATE users SET password = $1, email = $2 WHERE id = $3`;
-  const values = [hashedPassword, email, id];
+  const statement = `UPDATE users SET password = $1 WHERE id = $2`;
+  const values = [hashedPassword, id];
 
   try {
     const result = await pool.query(statement, values);
@@ -129,7 +129,7 @@ module.exports = {
   getUsers,
   getUserById,
   createUser,
-  updateUser,
+  updateUserPassword,
   findUserByEmail,
   registerNewUser,
   loginUser,
