@@ -7,8 +7,14 @@ module.exports = (app) => {
   app.use("/products", router);
 
   router.get("/", async (req, res, next) => {
+    const category = req.query.category;
+
     try {
-      const response = await productModel.getProducts();
+      let response;
+      category 
+        ? response = await productModel.getProductsByCategory(category) 
+        : response = await productModel.getProducts(category);
+      ;
       res.status(200).send(response);
     } catch (err) {
       next(err);
