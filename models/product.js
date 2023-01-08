@@ -10,9 +10,20 @@ const getProducts = async () => {
   }
 };
 
+const getProductsByCategory = async (category) => {
+  const query = {
+    text: "SELECT * FROM products WHERE category = $1 ORDER BY id ASC",
+    values: [category.toLowerCase()],
+  };
 
   try {
-    const result = await pool.query(statement, values);
+    const result = await pool.query(query);
+    return result.rows;
+  } catch (err) {
+    console.log(err.stack);
+    throw new Error(err);
+  }
+};
 const getProductById = async (id) => {
   const query = {
     text: 'SELECT * FROM products WHERE id = $1',
