@@ -12,12 +12,10 @@ module.exports = (app) => {
     try {
       let response;
       if (category) {
-        response = await productModel.getProductsByCategory(category)
-      }
-      else if (name) {
-        response = await productModel.getProductsByName(name)
-      }
-      else {
+        response = await productModel.getProductsByCategory(category);
+      } else if (name) {
+        response = await productModel.getProductsByName(name);
+      } else {
         response = await productModel.getProducts();
       }
       res.status(200).send(response);
