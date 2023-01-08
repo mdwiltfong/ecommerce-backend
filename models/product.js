@@ -27,9 +27,9 @@ const getProductsByCategory = async (category) => {
 const getProductsByName = async (name) => {
   const query = {
     text:
-    // ILIKE = case insensitive query
-    // LIKE requires special syntax to surround with %    '%'||$1||'%'
-    // https://stackoverflow.com/questions/60257510/postgres-node-search-query-using-like-how-to-set
+      // ILIKE = case insensitive query
+      // LIKE requires special syntax to surround with %    '%'||$1||'%'
+      // https://stackoverflow.com/questions/60257510/postgres-node-search-query-using-like-how-to-set
       "SELECT * FROM products WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC",
     values: [name.toLowerCase()],
   };
