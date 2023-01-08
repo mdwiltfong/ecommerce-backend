@@ -3,10 +3,8 @@ const createError = require("http-errors");
 const bcrypt = require("bcrypt");
 
 const getUsers = async () => {
+  const statement = "SELECT * FROM users ORDER BY id ASC";
   try {
-    const statement = `
-      SELECT * FROM users 
-        ORDER BY id ASC`;
     const result = await pool.query(statement);
     return result.rows;
   } catch (err) {
@@ -15,13 +13,13 @@ const getUsers = async () => {
 };
 
 const getUserById = async (id) => {
-  const statement = `
-      SELECT * FROM users 
-      WHERE id = $1 `
-  const values = [id];
+  const query = {
+    text: "SELECT * FROM users WHERE id = $1",
+    values: [id],
+  };
 
   try {
-    const result = await pool.query(statement, values);
+    const result = await pool.query(query);
     if (result.rows?.length) {
       return result.rows[0];
     } else {
@@ -36,12 +34,13 @@ const createUser = async (data) => {
   const { email } = data;
   const hashedPassword = await hashPassword(data.password);
 
-  const statement = `INSERT INTO users(password, email) 
-      VALUES($1, $2) RETURNING *`;
-  const values = [hashedPassword, email];
+  const query = {
+    text: "INSERT INTO users(password, email) VALUES($1, $2) RETURNING *",
+    values: [hashedPassword, email],
+  };
 
   try {
-    const result = await pool.query(statement, values);
+    const result = await pool.query(query);
     if (result.rows?.length) {
       return result.rows[0];
     } else {
@@ -61,11 +60,14 @@ const updateUserPassword = async (data) => {
   const { id } = data;
   const hashedPassword = await hashPassword(data.password);
 
-  const statement = `UPDATE users SET password = $1 WHERE id = $2`;
-  const values = [hashedPassword, id];
+  const query = {
+    text: "UPDATE users SET password = $1 WHERE id = $2 RETURNING *",
+    values: [hashedPassword, id],
+  };
 
   try {
-    const result = await pool.query(statement, values);
+    const result = await pool.query(query);
+
     if (result.rows?.length) {
       return result.rows[0];
     } else {
@@ -77,13 +79,13 @@ const updateUserPassword = async (data) => {
 };
 
 const findUserByEmail = async (email) => {
-  const statement = `SELECT * FROM users 
-                        WHERE email = $1  
-                      `;
-  const values = [email];
+  const query = {
+    text: "SELECT * FROM users WHERE email = $1",
+    values: [email],
+  };
 
   try {
-    const result = await pool.query(statement, values);
+    const result = await pool.query(query);
     if (result.rows?.length) {
       return result.rows[0];
     }
