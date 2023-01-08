@@ -15,9 +15,9 @@ const getUsers = async () => {
 };
 
 const getUserById = async (id) => {
-  const statement = `SELECT * FROM users 
-      WHERE id = $1
-      ORDER BY id ASC`;
+  const statement = `
+      SELECT * FROM users 
+      WHERE id = $1 `
   const values = [id];
 
   try {
