@@ -54,7 +54,7 @@ const createUser = async (data) => {
 
 const hashPassword = async (password) => {
   const saltRounds = 10;
-  return await bcrypt.hash(data.password, saltRounds);
+  return await bcrypt.hash(password, saltRounds);
 };
 
 const updateUser = async (data) => {
