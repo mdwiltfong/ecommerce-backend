@@ -28,7 +28,7 @@ module.exports = (app) => {
   // Update user password in database
   router.put("/:id", async (req, res, next) => {
     try {
-      const id = parseInt(req.params);
+      const id = parseInt(req.params.id);
       const { password } = req.body;
       const user = { id, password };
 
