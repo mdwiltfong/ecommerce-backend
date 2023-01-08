@@ -10,14 +10,16 @@ const getProducts = async () => {
   }
 };
 
-const getProductById = async (id) => {
-  const statement = `
-      SELECT * FROM products 
-      WHERE id = $1 `;
-  const values = [id];
 
   try {
     const result = await pool.query(statement, values);
+const getProductById = async (id) => {
+  const query = {
+    text: 'SELECT * FROM products WHERE id = $1',
+    values: [id]
+  }
+  try {
+    const result = await pool.query(query);
     if (result.rows?.length) {
       return result.rows[0];
     } else {
