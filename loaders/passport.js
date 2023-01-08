@@ -1,7 +1,7 @@
 const passport = require("passport");
-const LocalStrategy = require("passport-local");
+const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
-const { findUserByEmail } = require("../models/user");
+const findUserByEmail = require("../models/user").findUserByEmail;
 
 module.exports = (app) => {
   // Initialize passport
