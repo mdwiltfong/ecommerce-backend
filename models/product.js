@@ -24,7 +24,6 @@ const getProductsByCategory = async (category) => {
   }
 };
 
-const getProductsByName = async (category) => {
 const getProductsByName = async (name) => {
   const query = {
     text:
@@ -44,9 +43,9 @@ const getProductsByName = async (name) => {
 
 const getProductById = async (id) => {
   const query = {
-    text: 'SELECT * FROM products WHERE id = $1',
-    values: [id]
-  }
+    text: "SELECT * FROM products WHERE id = $1",
+    values: [id],
+  };
   try {
     const result = await pool.query(query);
     if (result.rows?.length) {
@@ -63,4 +62,5 @@ module.exports = {
   getProducts,
   getProductsByCategory,
   getProductById,
+  getProductsByName,
 };
