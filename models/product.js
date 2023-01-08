@@ -1,10 +1,8 @@
 const pool = require("../db");
 
 const getProducts = async () => {
+  const statement = "SELECT * FROM products ORDER BY id ASC";
   try {
-    const statement = `
-      SELECT * FROM products 
-        ORDER BY id ASC`;
     const result = await pool.query(statement);
     return result.rows;
   } catch (err) {
