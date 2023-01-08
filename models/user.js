@@ -34,7 +34,7 @@ const getUserById = async (id) => {
 
 const createUser = async (data) => {
   const { email } = data;
-  const hashedPassword = hashPassword(data.password);
+  const hashedPassword = await hashPassword(data.password);
 
   const statement = `INSERT INTO users(password, email) 
       VALUES($1, $2) RETURNING *`;
