@@ -25,26 +25,15 @@ module.exports = (app) => {
     }
   });
 
-  router.post("/:id", async (req, res, next) => {
+  // Update user password in database
+  router.put("/:id", async (req, res, next) => {
     try {
-      const id = parseInt(req.params.id);
-      const { password, email } = req.body;
-      const user = { id, password, email };
+      const id = parseInt(req.params);
+      const { password } = req.body;
+      const user = { id, password };
 
-      const response = await userModel.updateUser(user);
+      const response = await userModel.updateUserPassword(user);
       res.status(200).send(response);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.put("/users", async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const { password, email } = req.body;
-      const user = { id, password, email };
-
-      const response = await userModel.updateUser(user);
     } catch (err) {
       next(err);
     }
