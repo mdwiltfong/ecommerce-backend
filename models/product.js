@@ -24,6 +24,20 @@ const getProductsByCategory = async (category) => {
     throw new Error(err);
   }
 };
+
+const getProductsByName = async (category) => {
+  const query = {
+    text: "SELECT * FROM products WHERE category LIKE %$1% ORDER BY id ASC",
+    values: [category.toLowerCase()],
+  };
+  try {
+    const result = await pool.query(query);
+    return result.rows;
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 const getProductById = async (id) => {
   const query = {
     text: 'SELECT * FROM products WHERE id = $1',
@@ -43,5 +57,6 @@ const getProductById = async (id) => {
 
 module.exports = {
   getProducts,
+  getProductsByCategory,
   getProductById,
 };
