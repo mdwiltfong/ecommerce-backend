@@ -1,18 +1,10 @@
 const express = require("express");
 const app = express();
-
+const { PORT } = require("./config");
 const loaders = require("./loaders");
 
-const { PORT } = require("./config");
+// Init application loaders
+loaders(app);
 
-async function startServer() {
-  // Init application loaders
-  loaders(app);
-
-  // Start server
-  app.listen(PORT, () => {
-    console.log(`Server listening on PORT ${PORT}`);
-  });
-}
-
-startServer();
+// exported for Jest testing
+module.exports = app;
