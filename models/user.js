@@ -127,6 +127,29 @@ const loginUser = async (user) => {
   }
 };
 
+const deleteUser = async (userId) => {
+  // First check if there is a user with that id
+  const user = await getUserById(userId);
+  if (!user) {
+    throw createError(400, "No user with that id found!");
+  }
+
+  const query = {
+    text: "DELETE FROM users WHERE id = $1",
+    values: [userId],
+  };
+
+  try {
+    const result = await pool.query(query);
+    if (result.rows?.length) {
+      return result.rows[0];
+    }
+    return null;
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -135,4 +158,5 @@ module.exports = {
   findUserByEmail,
   registerNewUser,
   loginUser,
+  deleteUser,
 };
