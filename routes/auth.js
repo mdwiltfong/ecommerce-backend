@@ -7,6 +7,9 @@ module.exports = (app, passport) => {
   // Registration Endpoint
   router.post("/register", async (req, res, next) => {
     const data = req.body;
+    if (!data.password || !data.email) {
+      res.status(400).send({message: `Missing email or password information!` })
+    }
     try {
       const response = await registerNewUser(data);
       res.status(200).send(response);
