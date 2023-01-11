@@ -33,15 +33,24 @@ describe("Auth route", () => {
 
     describe("when the user already exists", () => {
       it("should return HTTP 409 with error message in body", async () => {
-        // use the user we already registered above
         // vvvvvvvvv error created from user model vvvvvvvvvvvvv
         // throw createError(409, `User with email: ${email} already exists!`);
-        const response = await request(app).post("/auth/register").send(user);
+        let response = await request(app).post("/auth/register").send(body);
+        id = response.body.id;
+
+        // run again as to replicate "duplicating" user
+        // store in response so we can test against it
+        response = await request(app).post("/auth/register").send(body);
         expect(response.statusCode).toBe(409);
+        expect(typeof response.body).toBe("object");
         expect(response.body).toHaveProperty(
           "message",
-          `User with email: ${user.email} already exists!`
+          `User with email: ${body.email} already exists!`
         );
+      });
+      // cleanup database for other tests
+      afterEach(async () => {
+        await deleteUser(id);
       });
     });
 
