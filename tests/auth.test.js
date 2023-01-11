@@ -15,9 +15,8 @@ describe("Auth route", () => {
   ];
   let id; // cleanup user... deleteUser(id)
   describe("POST /register", () => {
-    describe("given a username and password", () => {
-      it("should return a new user", async () => {
-        const response = await request(app).post("/auth/register").send(user);
+    describe("given a username and password in the body", () => {
+      it("should return HTTP 200 with user information from the database", async () => {
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveProperty("password");
         expect(response.body).toHaveProperty("email", user.email);
