@@ -5,7 +5,7 @@ const deleteUser = require("../models/user").deleteUser;
 describe("Auth route", () => {
   // Create mock data needed for tests
   const body = {
-    email: "greatestEmailEver11111@email.com",
+    email: "greatestEmailEv1@email.com",
     password: "testPassword",
   };
   const badBodyData = [
@@ -13,7 +13,17 @@ describe("Auth route", () => {
     { password: "testpassword" }, // missing email key/value
     {}, // missing both email & password key/value
   ];
-  let id; // cleanup user... deleteUser(id)
+
+  beforeEach(async () => {
+    // before each test make sure our mock user doesn't exist.
+    // this will ensure every test has a fresh start
+    // and doesn't rely on stale data
+    const userToDelete = await User.findUserByEmail(body.email);
+    if (userToDelete) {
+      await User.deleteUserById(userToDelete.id);
+    }
+  });
+
   describe("POST /register", () => {
     describe("given a username and password in the body", () => {
       it("should return HTTP 200 with user information from the database", async () => {
@@ -25,9 +35,6 @@ describe("Auth route", () => {
         expect(response.body).toHaveProperty("id");
         expect(response.body).toHaveProperty("cart_id");
         id = response.body.id;
-      });
-      afterEach(async () => {
-        await deleteUser(id);
       });
     });
 
@@ -48,10 +55,6 @@ describe("Auth route", () => {
           `User with email: ${body.email} already exists!`
         );
       });
-      // cleanup database for other tests
-      afterEach(async () => {
-        await deleteUser(id);
-      });
     });
 
     describe("when email or password info is missing", () => {
@@ -67,5 +70,27 @@ describe("Auth route", () => {
         }
       });
     });
+  });
+
+  describe("POST /login", () => {
+    describe("when the username doesn't exist in the database", () => {
+      //throw createError(401, "Incorrect username or password");
+      it("should return HTTP 401", async () => {
+        const response = await request(app).post("/auth/login").send(body);
+        expect(response.statusCode).toBe(401);
+      });
+    });
+    describe("when the password doesn't match in the database", () => {
+      it("should return HTTP 401", async () => {
+        // first register the user
+        let response = await request(app).post("/auth/register").send(body);
+        id = response.body.id;
+        response = await request(app)
+          .post("/auth/login")
+          .send({ email: body.email, password: "badpassword" });
+        expect(response.statusCode).toBe(401);
+      });
+    });
+    describe("when there is no info sent at all", () => {});
   });
 });
