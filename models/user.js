@@ -127,7 +127,7 @@ const loginUser = async (data) => {
   }
 };
 
-const deleteUser = async (userId) => {
+const deleteUserById = async (userId) => {
   // First check if there is a user with that id
   const user = await getUserById(userId);
   if (!user) {
@@ -158,5 +158,5 @@ module.exports = {
   findUserByEmail,
   registerNewUser,
   loginUser,
-  deleteUser,
+  deleteUserById,
 };
