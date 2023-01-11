@@ -104,8 +104,8 @@ const registerNewUser = async (data) => {
   return await createUser(data);
 };
 
-const loginUser = async (user) => {
-  const { email, password } = user;
+const loginUser = async (data) => {
+  const { email, password } = data;
   try {
     // Check if user exists
     const user = await findUserByEmail(email);
