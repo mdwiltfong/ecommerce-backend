@@ -17,12 +17,17 @@ describe("Auth route", () => {
   describe("POST /register", () => {
     describe("given a username and password in the body", () => {
       it("should return HTTP 200 with user information from the database", async () => {
+        const response = await request(app).post("/auth/register").send(body);
         expect(response.statusCode).toBe(200);
+        expect(typeof response.body).toBe("object");
         expect(response.body).toHaveProperty("password");
-        expect(response.body).toHaveProperty("email", user.email);
+        expect(response.body).toHaveProperty("email", body.email);
         expect(response.body).toHaveProperty("id");
-        id = response.body.id; // referenced in afterAll for cleanup of database
         expect(response.body).toHaveProperty("cart_id");
+        id = response.body.id;
+      });
+      afterEach(async () => {
+        await deleteUser(id);
       });
     });
 
