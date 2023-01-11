@@ -42,7 +42,7 @@ module.exports = (app) => {
   router.delete("/:id", async (req, res, next) => {
       const userId = parseInt(req.params.id);
     try {
-      const response = await userModel.deleteUser(userId);
+      const response = await userModel.deleteUserById(userId);
       res.status(200).send({message: `User with userId: ${userId} deleted from database.`})
     } catch (err) {
       next(err);
