@@ -8,7 +8,9 @@ module.exports = (app, passport) => {
   router.post("/register", async (req, res, next) => {
     const data = req.body;
     if (!data.password || !data.email) {
-      res.status(400).send({message: `Missing email or password information!` })
+      res
+        .status(400)
+        .send({ message: `Missing email or password information!` });
     }
     try {
       const response = await registerNewUser(data);
