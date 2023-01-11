@@ -7,9 +7,9 @@ const user = {
   password: "testPassword",
 };
 
-let id;
 
 describe("/auth route", () => {
+  let id;
   afterAll(async () => {
     await deleteUser(id);
   });
