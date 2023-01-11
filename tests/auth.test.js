@@ -8,11 +8,11 @@ const user = {
 };
 
 let id;
-afterAll(async () => {
-  await deleteUser(id);
-});
 
 describe("/auth route", () => {
+  afterAll(async () => {
+    await deleteUser(id);
+  });
   describe("POST /register", () => {
     describe("given a username and password", () => {
       it("should return a new user", async () => {
