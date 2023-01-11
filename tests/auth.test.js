@@ -55,16 +55,11 @@ describe("Auth route", () => {
     });
 
     describe("when email or password info is missing", () => {
-      it("should return HTTP 400 with error message in body", async () => {
-        const bodyData = [
-          { email: "testemail@email.com" }, // missing password key/value
-          { password: "testpassword" }, // missing email key/value
-          {}, // missing both email & password key/value
-        ];
-
-        for (const body of bodyData) {
+      it("should return HTTP 400 with error message", async () => {
+        for (const body of badBodyData) {
           const response = await request(app).post("/auth/register").send(body);
           expect(response.statusCode).toBe(400);
+          expect(typeof response.body).toBe("object");
           expect(response.body).toHaveProperty(
             "message",
             "Missing email or password information!"
