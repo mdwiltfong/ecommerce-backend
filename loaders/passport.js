@@ -33,15 +33,14 @@ module.exports = (app) => {
         }
 
         try {
-          if (await bcrypt.compare(password, user.password)) {
-            // if inputted password matches the database password for that user
-            return done(null, user);
-          } else {
-            // wrong password
+          const isValidPassword = await bcrypt.compare(password, user.password);
+          if (!isValidPassword) {
             return done(null, false, { message: "Wrong password." });
           }
-          //
+          // if inputted password matches the database password for that user
+          return done(null, user);
         } catch (err) {
+          // return callback with error if we made it to this point
           return done(err);
         }
       }
