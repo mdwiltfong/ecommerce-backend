@@ -15,7 +15,7 @@ afterAll(async () => {
 describe("/auth route", () => {
   describe("POST /register", () => {
     describe("given a username and password", () => {
-      test("should return a new user", async () => {
+      it("should return a new user", async () => {
         const response = await request(app).post("/auth/register").send(user);
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveProperty("password");
@@ -27,7 +27,7 @@ describe("/auth route", () => {
     });
 
     describe("when the user already exists", () => {
-      test("should return HTTP 409 with error message in body", async () => {
+      it("should return HTTP 409 with error message in body", async () => {
         // use the user we already registered above
         // vvvvvvvvv error created from user model vvvvvvvvvvvvv
         // throw createError(409, `User with email: ${email} already exists!`);
@@ -41,7 +41,7 @@ describe("/auth route", () => {
     });
 
     describe("when email or password info is missing", () => {
-      test("should return HTTP 400 with error message in body", async () => {
+      it("should return HTTP 400 with error message in body", async () => {
         const bodyData = [
           { email: "testemail@email.com" }, // missing password key/value
           { password: "testpassword" }, // missing email key/value
