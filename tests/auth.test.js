@@ -2,17 +2,18 @@ const request = require("supertest");
 const app = require("../index");
 const deleteUser = require("../models/user").deleteUser;
 
-const user = {
-  email: "testEmail292@email.com",
-  password: "testPassword",
-};
-
-
-describe("/auth route", () => {
-  let id;
-  afterAll(async () => {
-    await deleteUser(id);
-  });
+describe("Auth route", () => {
+  // Create mock data needed for tests
+  const body = {
+    email: "greatestEmailEver11111@email.com",
+    password: "testPassword",
+  };
+  const badBodyData = [
+    { email: "testemail@email.com" }, // missing password key/value
+    { password: "testpassword" }, // missing email key/value
+    {}, // missing both email & password key/value
+  ];
+  let id; // cleanup user... deleteUser(id)
   describe("POST /register", () => {
     describe("given a username and password", () => {
       it("should return a new user", async () => {
