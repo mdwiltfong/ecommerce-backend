@@ -116,7 +116,7 @@ const loginUser = async (data) => {
     }
 
     // Check for matching passwords
-    const passwordIsValid = bcrypt.compare(password, user.password);
+    const passwordIsValid = await bcrypt.compare(password, user.password);
     if (!passwordIsValid) {
       throw createError(401, "Incorrect username or password");
     }
