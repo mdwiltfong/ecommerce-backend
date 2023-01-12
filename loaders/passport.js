@@ -1,7 +1,7 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
-const findUserByEmail = require("../models/user").findUserByEmail;
+const User = require("../models/user");
 
 module.exports = (app) => {
   // Initialize passport
@@ -23,24 +23,11 @@ module.exports = (app) => {
     new LocalStrategy(
       { usernameField: "email", passwordField: "password" }, //opts
       async (email, password, done) => {
-        // Check for user in PostgreSQL database
-        const user = await findUserByEmail(email);
-        if (!user) {
-          // no user found
-          return done(null, false, {
-            message: "No user found with that email",
-          });
-        }
-
         try {
-          const isValidPassword = await bcrypt.compare(password, user.password);
-          if (!isValidPassword) {
-            return done(null, false, { message: "Wrong password." });
-          }
-          // if inputted password matches the database password for that user
+          // Check for user in PostgreSQL database
+          const user = await User.loginUser({ email, password });
           return done(null, user);
         } catch (err) {
-          // return callback with error if we made it to this point
           return done(err);
         }
       }
