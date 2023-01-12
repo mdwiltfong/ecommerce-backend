@@ -5,6 +5,10 @@ const router = express.Router();
 module.exports = (app, passport) => {
   app.use("/auth", router);
   // Registration Endpoint
+  router.get("/login", async (req, res, next) => {
+    res.send(":)");
+  });
+
   router.post("/register", async (req, res, next) => {
     const data = req.body;
     if (!data.password || !data.email) {
