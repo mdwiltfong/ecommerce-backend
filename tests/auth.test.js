@@ -113,6 +113,7 @@ describe("Auth route", () => {
       beforeAll(async () => {
         // Create a user first
         await request(app).post("/auth/register").send(body);
+
         // Then send a bad password with the new users email
         response = await request(app).post("/auth/login/password").send({
           email: body.email,
