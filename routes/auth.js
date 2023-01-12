@@ -26,8 +26,11 @@ module.exports = (app, passport) => {
 
   // Login Endpoint
   router.post(
-    "/login",
-    passport.authenticate("local"),
+    "/login/password",
+    passport.authenticate("local", {
+      failureRedirect: "/login",
+      failureMessage: true,
+    }),
     async (req, res, next) => {
       try {
         const { email, password } = req.body;
