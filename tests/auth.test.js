@@ -14,8 +14,8 @@ describe("Auth route", () => {
     {}, // missing both email & password key/value
   ];
 
-  beforeEach(async () => {
-    // before each test make sure our mock user doesn't exist.
+  afterEach(async () => {
+    // after each test make sure our mock user doesn't exist.
     // this will ensure every test has a fresh start
     // and doesn't rely on stale data
     const userToDelete = await User.findUserByEmail(body.email);
@@ -34,7 +34,6 @@ describe("Auth route", () => {
         expect(response.body).toHaveProperty("email", body.email);
         expect(response.body).toHaveProperty("id");
         expect(response.body).toHaveProperty("cart_id");
-        id = response.body.id;
       });
     });
 
@@ -43,7 +42,6 @@ describe("Auth route", () => {
         // vvvvvvvvv error created from user model vvvvvvvvvvvvv
         // throw createError(409, `User with email: ${email} already exists!`);
         let response = await request(app).post("/auth/register").send(body);
-        id = response.body.id;
 
         // run again as to replicate "duplicating" user
         // store in response so we can test against it
