@@ -25,11 +25,20 @@ describe("Auth route", () => {
   });
 
   describe("POST /register", () => {
+    let response;
+    beforeAll(async () => {
+      response = await request(app).post("/auth/register").send(body);
+    });
     describe("given a username and password in the body", () => {
-      it("should return HTTP 200 with user information from the database", async () => {
-        const response = await request(app).post("/auth/register").send(body);
+      it("should return HTTP 200", async () => {
         expect(response.statusCode).toBe(200);
+      });
+
+      it("should return an object for the body", () => {
         expect(typeof response.body).toBe("object");
+      });
+
+      it("should return user information in the response body", () => {
         expect(response.body).toHaveProperty("password");
         expect(response.body).toHaveProperty("email", body.email);
         expect(response.body).toHaveProperty("id");
