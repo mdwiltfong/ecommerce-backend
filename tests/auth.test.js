@@ -1,6 +1,6 @@
 const request = require("supertest");
 const app = require("../index");
-const deleteUser = require("../models/user").deleteUser;
+const User = require("../models/user");
 
 describe("Auth route", () => {
   // Create mock data needed for tests
@@ -91,6 +91,7 @@ describe("Auth route", () => {
         expect(response.statusCode).toBe(401);
       });
     });
+    // TODO
     describe("when there is no info sent at all", () => {});
   });
 });
