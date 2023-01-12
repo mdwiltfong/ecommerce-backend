@@ -1,0 +1,13 @@
+{
+  "editor.accessibilitySupport": "auto",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.lineNumbers": "relative",
+  "editor.linkedEditing": true,
+  "editor.mouseWheelZoom": false,
+  "editor.parameterHints.cycle": false,
+  "editor.renderLineHighlight": "all",
+  "editor.renderLineHighlightOnlyWhenFocus": true,
+  "editor.smoothScrolling": true,
+  "editor.stablePeek": false,
+  "editor.stickyScroll.enabled": true
+}
