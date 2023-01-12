@@ -1,5 +1,5 @@
 const expressLoader = require("./express");
-const passportLoader = require('./passport');
+const passportLoader = require("./passport");
 const routeLoader = require("../routes");
 //const swaggerLoader = require('./swagger');
 //const swagger = require('./swagger');
