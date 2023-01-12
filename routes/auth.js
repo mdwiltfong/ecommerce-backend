@@ -27,18 +27,23 @@ module.exports = (app, passport) => {
   // Login Endpoint
   router.post(
     "/login/password",
-    passport.authenticate("local", {
-      failureRedirect: "/login",
-      failureMessage: true,
-    }),
+    passport.authenticate("local"),
+    // failureRedirect: "/login",
     async (req, res, next) => {
-      try {
-        const { email, password } = req.body;
-        const response = await loginUser({ email, password });
-        res.status(200).send(response);
-      } catch (err) {
-        next(err);
+      const user = req.user;
+      if (!user) {
+        // we didnt get a user back from passport authenticate
+        res.status(401).send({ message: "Incorrect username or password" });
       }
+      res.status(200).send(req.user);
     }
   );
+
+  router.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      req.session.destroy();
+      res.redirect("/");
+    });
+  });
 };
