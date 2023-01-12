@@ -9,5 +9,13 @@
   "editor.renderLineHighlightOnlyWhenFocus": true,
   "editor.smoothScrolling": true,
   "editor.stablePeek": false,
-  "editor.stickyScroll.enabled": true
+  "editor.stickyScroll.enabled": true,
+  "editor.unfoldOnClickAfterEndOfLine": true,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.cursorBlinking": "blink",
+  "editor.cursorSmoothCaretAnimation": true,
+  "editor.cursorStyle": "line",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true
 }
