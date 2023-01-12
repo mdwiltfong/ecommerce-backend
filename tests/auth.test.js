@@ -47,16 +47,25 @@ describe("Auth route", () => {
     });
 
     describe("when the user already exists", () => {
-      it("should return HTTP 409 with error message in body", async () => {
-        // vvvvvvvvv error created from user model vvvvvvvvvvvvv
-        // throw createError(409, `User with email: ${email} already exists!`);
-        let response = await request(app).post("/auth/register").send(body);
-
+      let response;
+      beforeAll(async () => {
+        // Create our user
+        await request(app).post("/auth/register").send(body);
         // run again as to replicate "duplicating" user
         // store in response so we can test against it
         response = await request(app).post("/auth/register").send(body);
+      });
+
+      it("should return HTTP 409 with error message in body", async () => {
+        // throw createError(409, `User with email: ${email} already exists!`);
         expect(response.statusCode).toBe(409);
+      });
+
+      it("should return an object for the body", () => {
         expect(typeof response.body).toBe("object");
+      });
+
+      it("should return a property in the body named message", () => {
         expect(response.body).toHaveProperty(
           "message",
           `User with email: ${body.email} already exists!`
@@ -79,26 +88,92 @@ describe("Auth route", () => {
     });
   });
 
-  describe("POST /login", () => {
+  describe("POST /login/password", () => {
     describe("when the username doesn't exist in the database", () => {
-      //throw createError(401, "Incorrect username or password");
+      // throw createError(401, "Incorrect username or password");
+      let response;
+      beforeAll(async () => {
+        response = await request(app).post("/auth/login/password").send(body);
+      });
+
       it("should return HTTP 401", async () => {
-        const response = await request(app).post("/auth/login").send(body);
         expect(response.statusCode).toBe(401);
       });
+
+      it("should have a property named message in the body", () => {
+        expect(response.body).toHaveProperty(
+          "message",
+          "Incorrect username or password"
+        );
+      });
     });
+
     describe("when the password doesn't match in the database", () => {
-      it("should return HTTP 401", async () => {
-        // first register the user
-        let response = await request(app).post("/auth/register").send(body);
-        id = response.body.id;
-        response = await request(app)
-          .post("/auth/login")
-          .send({ email: body.email, password: "badpassword" });
+      let response;
+      beforeAll(async () => {
+        // Create a user first
+        await request(app).post("/auth/register").send(body);
+        // Then send a bad password with the new users email
+        response = await request(app).post("/auth/login/password").send({
+          email: body.email,
+          password: "thisPasswordDoesntWork",
+        });
+      });
+
+      it("should return HTTP 401", () => {
         expect(response.statusCode).toBe(401);
       });
+
+      it("should return an object for the body", () => {
+        expect(typeof response.body).toBe("object");
+      });
+
+      it("should return a property in the body named message", () => {
+        expect(response.body).toHaveProperty(
+          "message",
+          "Incorrect username or password"
+        );
+      });
     });
-    // TODO
-    describe("when there is no info sent at all", () => {});
+
+    describe("when the given credentials from the user match the database", () => {
+      let response;
+      beforeAll(async () => {
+        response = await request(app).post("/auth/register").send(body);
+      });
+
+      it("should return HTTP 200", async () => {
+        expect(response.statusCode).toBe(200);
+      });
+
+      it("should return an object for the body", () => {
+        expect(typeof response.body).toBe("object");
+      });
+
+      it("should return an object containing the user info", () => {
+        expect(response.body).toHaveProperty("id");
+        expect(response.body).toHaveProperty("cart_id");
+        expect(response.body).toHaveProperty("email", body.email);
+        expect(response.body).toHaveProperty("password");
+      });
+    });
+
+    describe("when there is no info sent at all", () => {
+      let response;
+      beforeAll(async () => {
+        response = await request(app).post("/auth/register").send({});
+      });
+
+      it("should return HTTP 400", () => {
+        expect(response.statusCode).toBe(400);
+      });
+
+      it("should return a property in the body named message", () => {
+        expect(response.body).toHaveProperty(
+          "message",
+          "Missing email or password information!"
+        );
+      });
+    });
   });
 });
