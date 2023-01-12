@@ -27,9 +27,9 @@ module.exports = (app) => {
 
   // Update user password in database
   router.put("/:id", async (req, res, next) => {
-      const id = parseInt(req.params.id);
-      const { password } = req.body;
-      const user = { id, password };
+    const id = parseInt(req.params.id);
+    const { password } = req.body;
+    const user = { id, password };
 
     try {
       const response = await userModel.updateUserPassword(user);
@@ -40,12 +40,16 @@ module.exports = (app) => {
   });
 
   router.delete("/:id", async (req, res, next) => {
-      const userId = parseInt(req.params.id);
+    const userId = parseInt(req.params.id);
     try {
       const response = await userModel.deleteUserById(userId);
-      res.status(200).send({message: `User with userId: ${userId} deleted from database.`})
+      res
+        .status(200)
+        .send({
+          message: `User with userId: ${userId} deleted from database.`,
+        });
     } catch (err) {
       next(err);
     }
-  })
+  });
 };
