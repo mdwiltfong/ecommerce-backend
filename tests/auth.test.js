@@ -177,4 +177,16 @@ describe("Auth route", () => {
       });
     });
   });
+
+  describe("GET /logout", () => {
+    let response;
+    beforeAll(async () => {
+      response = await request(app).get("/auth/logout");
+    });
+
+    it("should return HTTP 302", () => {
+      // HTTP 302 - Moved
+      expect(response.statusCode).toBe(302);
+    });
+  });
 });
