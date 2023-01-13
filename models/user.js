@@ -126,7 +126,7 @@ const deleteUserById = async (userId) => {
   // First check if there is a user with that id
   const user = await getUserById(userId);
   if (!user) {
-    throw createError(400, "No user with that id found!");
+    throw createError(404, "No user with that id found!");
   }
 
   const query = {
@@ -138,7 +138,7 @@ const deleteUserById = async (userId) => {
     const result = await pool.query(query);
     return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
-    throw new Error(err);
+    throw err;
   }
 };
 
