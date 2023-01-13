@@ -8,12 +8,15 @@ describe("Users route", () => {
   };
   let response;
   let userId;
-  const userObject = {
+  const userObject = expect.objectContaining({
     id: expect.any(Number),
     cart_id: null,
     email: expect.any(String),
     password: expect.any(String),
-  };
+  });
+  const messageObject = expect.objectContaining({
+    message: expect.any(String),
+  });
 
   beforeAll(async () => {
     // register a user before running tests
@@ -29,9 +32,7 @@ describe("Users route", () => {
     });
 
     it("should list all users in json", async () => {
-      expect(response.body).toEqual(
-        expect.arrayContaining([expect.objectContaining(userObject)])
-      );
+      expect(response.body).toEqual(expect.arrayContaining([userObject]));
     });
   });
 
@@ -48,7 +49,7 @@ describe("Users route", () => {
       });
 
       it("should return a user object", () => {
-        expect(response.body).toEqual(expect.objectContaining(userObject));
+        expect(response.body).toEqual(userObject);
       });
     });
 
@@ -61,7 +62,7 @@ describe("Users route", () => {
       });
 
       it("should not return a user object", () => {
-        expect(response.body).toEqual(expect.not.objectContaining(userObject));
+        expect(response.body).not.toEqual(userObject);
       });
     });
   });
@@ -80,7 +81,7 @@ describe("Users route", () => {
       });
 
       it("should return a user object", () => {
-        expect(response.body).toEqual(expect.objectContaining(userObject));
+        expect(response.body).toEqual(userObject);
       });
     });
 
@@ -96,11 +97,35 @@ describe("Users route", () => {
       });
 
       it("should return an object with property message", () => {
-        expect(response.body).toEqual(
-          expect.objectContaining({
-            message: expect.any(String),
-          })
-        );
+        expect(response.body).toEqual(messageObject);
+      });
+    });
+  });
+
+  describe("DELETE /users/:id", () => {
+    beforeAll(async () => {
+      response = await request(app).delete(`/users/${userId}`);
+    });
+    describe("given a valid user id", () => {
+      it("should return HTTP 200", () => {
+        expect(response.statusCode).toBe(200);
+      });
+
+      it("should return an object with message property", () => {
+        expect(response.body).toEqual(messageObject);
+      });
+    });
+
+    describe("given an invalid user id", () => {
+      beforeAll(async () => {
+        response = await request(app).delete("/users/999999");
+      });
+      it("should return HTTP 404", () => {
+        expect(response.statusCode).toBe(404);
+      });
+
+      it("should return an object with message property", () => {
+        expect(response.body).toEqual(messageObject);
       });
     });
   });
