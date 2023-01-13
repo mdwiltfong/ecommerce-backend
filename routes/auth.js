@@ -27,23 +27,30 @@ module.exports = (app, passport) => {
   // Login Endpoint
   router.post(
     "/login/password",
-    passport.authenticate("local"),
-    // failureRedirect: "/login",
+    passport.authenticate("local", {
+      failureRedirect: "/auth/login",
+      successRedirect: "/",
+    }),
     async (req, res, next) => {
       const user = req.user;
       if (!user) {
         // we didnt get a user back from passport authenticate
         res.status(401).send({ message: "Incorrect username or password" });
       }
-      res.status(200).send(req.user);
+      res.status(200).send(user);
     }
   );
 
-  router.get("/logout", (req, res, next) => {
-    req.logout((err) => {
-      if (err) return next(err);
-      req.session.destroy();
-      res.redirect("/");
-    });
-  });
+  //TODO: isLoggedIn middleware
+  router.post(
+    "/logout",
+    /* isLoggedIn, */ (req, res, next) => {
+      req.logout((err) => {
+        if (err) return next(err);
+        res.clearCookie("connect.sid");
+        req.session.destroy();
+        res.redirect("/login");
+      });
+    }
+  );
 };
