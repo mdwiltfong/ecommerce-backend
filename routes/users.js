@@ -43,11 +43,9 @@ module.exports = (app) => {
     const userId = parseInt(req.params.id);
     try {
       const response = await userModel.deleteUserById(userId);
-      res
-        .status(200)
-        .send({
-          message: `User with userId: ${userId} deleted from database.`,
-        });
+      res.status(200).send({
+        message: `User with userId: ${userId} deleted from database.`,
+      });
     } catch (err) {
       next(err);
     }

@@ -20,19 +20,15 @@ const getUserById = async (id) => {
 
   try {
     const result = await pool.query(query);
-    if (result.rows?.length) {
-      return result.rows[0];
-    } else {
-      return null;
-    }
+    return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
     throw new Error(err);
   }
 };
 
 const createUser = async (data) => {
-  const { email } = data;
-  const hashedPassword = await hashPassword(data.password);
+  const { email, password } = data;
+  const hashedPassword = await hashPassword(password);
 
   const query = {
     text: "INSERT INTO users(password, email) VALUES($1, $2) RETURNING *",
@@ -41,11 +37,7 @@ const createUser = async (data) => {
 
   try {
     const result = await pool.query(query);
-    if (result.rows?.length) {
-      return result.rows[0];
-    } else {
-      return null;
-    }
+    return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
     throw new Error(err);
   }
@@ -58,6 +50,17 @@ const hashPassword = async (password) => {
 
 const updateUserPassword = async (data) => {
   const { id, password } = data;
+
+  // First see if there is a user with the given id.
+  try {
+    const user = await getUserById(id);
+    if (!user) {
+      throw createError(400, `No user with id: ${id} found.`);
+    }
+  } catch (err) {
+    throw err;
+  }
+
   const hashedPassword = await hashPassword(password);
 
   const query = {
@@ -67,14 +70,9 @@ const updateUserPassword = async (data) => {
 
   try {
     const result = await pool.query(query);
-
-    if (result.rows?.length) {
-      return result.rows[0];
-    } else {
-      return null;
-    }
+    return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
-    throw new Error(err);
+    throw err;
   }
 };
 
@@ -86,12 +84,9 @@ const findUserByEmail = async (email) => {
 
   try {
     const result = await pool.query(query);
-    if (result.rows?.length) {
-      return result.rows[0];
-    }
-    return null;
+    return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
-    throw new Error(err);
+    throw err;
   }
 };
 
@@ -123,7 +118,7 @@ const loginUser = async (data) => {
 
     return user;
   } catch (err) {
-    throw createError(500, err);
+    throw err;
   }
 };
 
@@ -141,10 +136,7 @@ const deleteUserById = async (userId) => {
 
   try {
     const result = await pool.query(query);
-    if (result.rows?.length) {
-      return result.rows[0];
-    }
-    return null;
+    return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
     throw new Error(err);
   }
