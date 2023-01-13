@@ -13,6 +13,12 @@ describe("Auth route", () => {
     { password: "testpassword" }, // missing email key/value
     {}, // missing both email & password key/value
   ];
+  const userObject = {
+    id: expect.any(Number),
+    cart_id: null,
+    email: body.email,
+    password: expect.any(String),
+  };
 
   afterEach(async () => {
     // after each test make sure our mock user doesn't exist.
@@ -34,15 +40,8 @@ describe("Auth route", () => {
         expect(response.statusCode).toBe(200);
       });
 
-      it("should return an object for the body", () => {
-        expect(typeof response.body).toBe("object");
-      });
-
       it("should return user information in the response body", () => {
-        expect(response.body).toHaveProperty("password");
-        expect(response.body).toHaveProperty("email", body.email);
-        expect(response.body).toHaveProperty("id");
-        expect(response.body).toHaveProperty("cart_id");
+        expect(response.body).toEqual(userObject);
       });
     });
 
@@ -147,15 +146,8 @@ describe("Auth route", () => {
         expect(response.statusCode).toBe(200);
       });
 
-      it("should return an object for the body", () => {
-        expect(typeof response.body).toBe("object");
-      });
-
       it("should return an object containing the user info", () => {
-        expect(response.body).toHaveProperty("id");
-        expect(response.body).toHaveProperty("cart_id");
-        expect(response.body).toHaveProperty("email", body.email);
-        expect(response.body).toHaveProperty("password");
+        expect(response.body).toEqual(userObject);
       });
     });
 
@@ -178,10 +170,10 @@ describe("Auth route", () => {
     });
   });
 
-  describe("GET /logout", () => {
+  describe("POST /logout", () => {
     let response;
     beforeAll(async () => {
-      response = await request(app).get("/auth/logout");
+      response = await request(app).post("/auth/logout");
     });
 
     it("should return HTTP 302", () => {
