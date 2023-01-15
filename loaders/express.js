@@ -1,6 +1,5 @@
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const logger = require("morgan");
 const session = require("express-session");
 const { SESSION_SECRET } = require("../config");
 
@@ -13,12 +12,19 @@ module.exports = (app) => {
   //app.use(morgan(':method :url :status :response-time :date')); // Custom logger to include date
 
   // Disable logger when testing with Jest
-  // This is done to prevent errors in Jest 
-  app.use(
-    logger(":method :url :status :response-time :date", {
-      skip: (req, res) => process.env.NODE_ENV === "test",
-    })
-  );
+  // This is done to prevent errors in Jest.
+  // Also disable logger when build is production
+  if (
+    process.env.NODE_ENV !== "test" ||
+    process.env.NODE_ENV !== "production"
+  ) {
+    const logger = require("morgan");
+    app.use(
+      logger(":method :url :status :response-time :date", {
+        skip: (req, res) => process.env.NODE_ENV === "test",
+      })
+    );
+  }
 
   // Transforms raw string of req.body into JSON
   app.use(bodyParser.json());
