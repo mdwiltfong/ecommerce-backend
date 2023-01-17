@@ -2,6 +2,10 @@ const pool = require("../db");
 const createError = require("http-errors");
 const bcrypt = require("bcrypt");
 
+/**
+ * Queries the database for all users
+ * @returns An array of all users
+ */
 const getUsers = async () => {
   const statement = "SELECT * FROM users ORDER BY id ASC";
   try {
@@ -12,6 +16,11 @@ const getUsers = async () => {
   }
 };
 
+/**
+ * Queries the database for a user that matches an id
+ * @param {number} id The users id
+ * @returns An object with the users information
+ */
 const getUserById = async (id) => {
   const query = {
     text: "SELECT * FROM users WHERE id = $1",
@@ -26,6 +35,11 @@ const getUserById = async (id) => {
   }
 };
 
+/**
+ * Creates a user in the database
+ * @param {Object} data Object with email, password properties defined
+ * @returns An object with the newly created users information
+ */
 const createUser = async (data) => {
   const { email, password } = data;
   const hashedPassword = await hashPassword(password);
@@ -43,11 +57,21 @@ const createUser = async (data) => {
   }
 };
 
+/**
+ * Hashes users password for secure storage in database
+ * @param {String} password The users password
+ * @returns The hashed password
+ */
 const hashPassword = async (password) => {
   const saltRounds = 10;
   return await bcrypt.hash(password, saltRounds);
 };
 
+/**
+ * Updates users password in the database
+ * @param {Object} data Object with id, password properties defined
+ * @returns An updated object with users information
+ */
 const updateUserPassword = async (data) => {
   const { id, password } = data;
 
@@ -76,6 +100,11 @@ const updateUserPassword = async (data) => {
   }
 };
 
+/**
+ * Finds a user in the database by email
+ * @param {String} email The users email to find
+ * @returns An object with the users information
+ */
 const findUserByEmail = async (email) => {
   const query = {
     text: "SELECT * FROM users WHERE email = $1",
@@ -90,6 +119,11 @@ const findUserByEmail = async (email) => {
   }
 };
 
+/**
+ * Registers a new user into the database
+ * @param {Object} data An object with email property defined
+ * @returns An object with the newly created users information
+ */
 const registerNewUser = async (data) => {
   const { email } = data;
   const user = await findUserByEmail(email);
@@ -99,6 +133,11 @@ const registerNewUser = async (data) => {
   return await createUser(data);
 };
 
+/**
+ * Verifies user exists in database for login
+ * @param {Object} data An object with email, password properties defined
+ * @returns An object with the logged in users information
+ */
 const loginUser = async (data) => {
   const { email, password } = data;
   try {
@@ -122,6 +161,11 @@ const loginUser = async (data) => {
   }
 };
 
+/**
+ *
+ * @param {number} userId The user id to delete
+ * @returns x
+ */
 const deleteUserById = async (userId) => {
   // First check if there is a user with that id
   const user = await getUserById(userId);
