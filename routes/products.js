@@ -7,17 +7,10 @@ module.exports = (app) => {
   app.use("/products", router);
 
   router.get("/", async (req, res, next) => {
-    const { category, name } = req.query;
+    const queryOpts = req.query;
 
     try {
-      let response;
-      if (category) {
-        response = await productModel.getProductsByCategory(category);
-      } else if (name) {
-        response = await productModel.getProductsByName(name);
-      } else {
-        response = await productModel.getProducts();
-      }
+      const response = await productModel.getProducts(queryOpts);
       res.status(200).send(response);
     } catch (err) {
       next(err);
@@ -25,9 +18,31 @@ module.exports = (app) => {
   });
 
   router.get("/:id", async (req, res, next) => {
+    const id = parseInt(req.params.id);
     try {
-      const id = parseInt(req.params.id);
       const response = await productModel.getProductById(id);
+      res.status(200).send(response);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.put("/:id", async (req, res, next) => {
+    const id = parseInt(req.params.id);
+    const newData = req.body;
+    try {
+      const response = await productModel.updateProductById(id, newData);
+      res.status(200).send(response);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.delete("/:id", async (req, res, next) => {
+    const id = parseInt(req.params.id);
+
+    try {
+      const response = await productModel.deleteProductById(id);
       res.status(200).send(response);
     } catch (err) {
       next(err);
