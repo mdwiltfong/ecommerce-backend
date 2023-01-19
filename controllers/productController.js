@@ -1,6 +1,6 @@
 const productModel = require("../models/product");
 
-const getAllProducts = async (req, res, next) => {
+const getProducts = async (req, res, next) => {
   const queryOpts = req.query;
 
   try {
@@ -43,7 +43,7 @@ const deleteProductById = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllProducts,
+  getProducts,
   getProductById,
   updateProductById,
   deleteProductById,
