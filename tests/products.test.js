@@ -50,7 +50,7 @@ describe("Products route", () => {
     // two queries could be possible, name and category
     // see urls object above to see possible queries
     describe("given a query that matches something in the database", () => {
-      it("should ", async () => {
+      it("should return HTTP 200 and return an array of products", async () => {
         for (const url of urls.good) {
           response = await request(app).get(url);
           expect(response.statusCode).toBe(200);
@@ -60,7 +60,7 @@ describe("Products route", () => {
     });
 
     describe("given a query that doesnt match something in the database", () => {
-      it("should ", async () => {
+      it("should return HTTP 200 and return an empty array", async () => {
         for (const url of urls.bad) {
           response = await request(app).get(url);
           expect(response.statusCode).toBe(200);
@@ -97,54 +97,6 @@ describe("Products route", () => {
       it("should return an empty object", () => {
         expect(response.body).toEqual(emptyObject);
       });
-
-  describe("GET /products?category=fishing", () => {
-    const arrayOfFishingProducts = expect.arrayContaining([
-      expect.objectContaining({
-        id: expect.any(Number),
-        name: expect.any(String),
-        price: expect.any(String),
-        description: expect.any(String),
-        category: "Fishing",
-      }),
-    ]);
-    beforeAll(async () => {
-      response = await request(app).get("/products?category=fishing");
-    });
-    it("should return HTTP 200", () => {
-      expect(response.statusCode).toBe(200);
-    });
-
-    it("should return an array of products within the fishing category", () => {
-      expect(response.body).toEqual(arrayOfFishingProducts);
-    });
-  });
-
-  describe("GET /products?name=test", () => {
-    beforeAll(async () => {
-      response = await request(app).get("/products?name=test");
-    });
-
-    it("should return HTTP 200", () => {
-      expect(response.statusCode).toBe(200);
-    });
-
-    it("should return products that match the parameter search", () => {
-      expect(response.body).toEqual(arrayOfProducts);
-    });
-  });
-
-  describe("GET /products/:id", () => {
-    beforeAll(async () => {
-      response = await request(app).get(`/products/${productId}`);
-    });
-
-    it("should return HTTP 200", () => {
-      expect(response.statusCode).toBe(200);
-    });
-
-    it("should return a single product object", () => {
-      expect(response.body).toEqual(productObject);
     });
   });
 
@@ -189,20 +141,6 @@ describe("Products route", () => {
       it("should return the updated products object", () => {
         expect(response.body).toEqual(productObject);
       });
-    beforeAll(async () => {
-      response = await request(app).put(`/products/${productId}`).send({
-        name: "Great product name",
-        price: 350.0,
-        description: "What a great description",
-        category: "Fishing",
-      });
-    });
-    it("should return HTTP 200", () => {
-      expect(response.statusCode).toBe(200);
-    });
-
-    it("should return the updated products object", () => {
-      expect(response.body).toEqual(productObject);
     });
   });
 
@@ -237,16 +175,6 @@ describe("Products route", () => {
       it("should return nothing in the body", () => {
         expect(response.body).toEqual(emptyObject);
       });
-    beforeAll(async () => {
-      response = await request(app).delete(`/products/${productId}`);
-    });
-
-    it("should return HTTP 204", () => {
-      expect(response.statusCode).toBe(204);
-    });
-
-    it("should return nothing in the body", () => {
-      expect(response.body).toEqual(emptyObject);
     });
   });
 });
