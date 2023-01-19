@@ -32,8 +32,8 @@ const getProducts = async (queryOpts) => {
  */
 const getProductsByCategory = async (category) => {
   const query = {
-    text: "SELECT * FROM products WHERE category = $1 ORDER BY id ASC",
-    values: [category.toLowerCase()],
+    text: "SELECT * FROM products WHERE category ILIKE '%'||$1||'%'",
+    values: [category],
   };
 
   try {
@@ -56,7 +56,7 @@ const getProductsByName = async (name) => {
       // LIKE requires special syntax to surround with %    '%'||$1||'%'
       // https://stackoverflow.com/questions/60257510/postgres-node-search-query-using-like-how-to-set
       "SELECT * FROM products WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC",
-    values: [name.toLowerCase()],
+    values: [name],
   };
   try {
     const result = await pool.query(query);
@@ -122,10 +122,12 @@ const deleteProductById = async (id) => {
 
   try {
     const result = await pool.query(query);
-    return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
     throw err;
   }
+  // no news is good news, if we made it this far
+  // that means the product was deleted, return null
+  return null;
 };
 
 module.exports = {
