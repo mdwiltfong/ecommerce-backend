@@ -5,14 +5,14 @@ const createError = require("http-errors");
  * Queries the database for all products
  * @param {Object} queryOpts Object containing `category` or `name`
  * property to filter the search result from the database.
- * @returns An array of products
+ * @returns {Array<Object>} An array of products
  */
 const getProducts = async (queryOpts) => {
   const { category, name } = queryOpts;
   if (name) {
-    return await getProductsByName(name);
+    return getProductsByName(name);
   } else if (category) {
-    return await getProductsByCategory(category);
+    return getProductsByCategory(category);
   }
 
   // If there is no query options, get all products
@@ -27,8 +27,8 @@ const getProducts = async (queryOpts) => {
 
 /**
  * Queries the database for all products that match a certain category
- * @param {String} category Category of a product
- * @returns an array of products that match a certain category
+ * @param {String} category Category of a product to search for
+ * @returns {Array<Object>} An array of products that match a certain category
  */
 const getProductsByCategory = async (category) => {
   const query = {
@@ -46,8 +46,8 @@ const getProductsByCategory = async (category) => {
 
 /**
  * Queries the database for products by name
- * @param {String} name Name of the product
- * @returns An array of products
+ * @param {String} name Name of the product to search for
+ * @returns {Array<Object>} An array of products
  */
 const getProductsByName = async (name) => {
   const query = {
@@ -68,9 +68,10 @@ const getProductsByName = async (name) => {
 
 /**
  * Gets a product by product id
- * @param {number} id - The product id
- * @returns an object with product information
+ * @param {number} id - The product id to get
+ * @returns {Object | null} The products object
  */
+
 const getProductById = async (id) => {
   const query = {
     text: "SELECT * FROM products WHERE id = $1",
@@ -88,11 +89,18 @@ const getProductById = async (id) => {
   }
 };
 
+/**
+ *
+ * @param {Number} id The id of the product to update
+ * @param {Object} data The data used to update the product
+ * @returns {Object} The updated product object
+ */
 const updateProductById = async (id, data) => {
   const { name, price, description, category } = data;
   // Check if product exists first
-  if (!getProductById(id)) {
-    throw createError(400, `No product with id: ${id} found.`);
+  const product = await getProductById(id);
+  if (!product) {
+    throw createError.BadRequest(`No product with id: ${id} found.`);
   }
 
   const query = {
@@ -108,11 +116,17 @@ const updateProductById = async (id, data) => {
   }
 };
 
+/**
+ *
+ * @param {Number} id The id of the product to delete
+ * @returns {null} null if deleted from the database.
+ * @throws An error
+ */
 const deleteProductById = async (id) => {
   // First check if product exists in database
-  const product = getProductById(id);
+  const product = await getProductById(id);
   if (!product) {
-    throw createError(400, `No product with id: ${id} found.`);
+    throw createError.BadRequest(`No product with id: ${id} found.`);
   }
 
   const query = {
