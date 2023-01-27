@@ -14,4 +14,10 @@ To easily populate your database with the requisite tables, `npm run create-db`.
 
 Once the app is running locally, you can access the API at `http://localhost:<your-port>`
 
-- [#5]
+# Todo / WIP
+
+- [] https://github.com/hazeltonbw/ecommerce-backend/issues/5
+- [] Middleware
+- [] Cart
+- [] Orders
+- [] Testing
