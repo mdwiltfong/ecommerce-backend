@@ -16,8 +16,8 @@ Once the app is running locally, you can access the API at `http://localhost:<yo
 
 # Todo / WIP
 
-- [] [Database Schema and Seed](https://github.com/hazeltonbw/ecommerce-backend/issues/5)
-- [] Middleware
-- [] Cart
-- [] Orders
-- [] Testing
+- [ ] [Database Schema and Seed](https://github.com/hazeltonbw/ecommerce-backend/issues/5)
+- [ ] Middleware
+- [ ] Cart
+- [ ] Orders
+- [ ] Testing
