@@ -52,6 +52,7 @@ const { DB } = require("../config");
 
   try {
     // Make a temporary client so we can create tables in the database
+    console.log(DB);
     const db = new Client({
       user: DB.PGUSER,
       host: DB.PGHOST,
