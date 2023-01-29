@@ -2,6 +2,9 @@ const { Client } = require("pg");
 const { DB } = require("../config");
 
 (async () => {
+  const createDatabase = `
+  CREATE DATABASE ecommerce_project;
+  `;
   const createUsersTable = `
     CREATE TABLE IF NOT EXISTS public.users (
       id               integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
@@ -26,7 +29,7 @@ const { DB } = require("../config");
       date             date,
       product_id       integer,
       FOREIGN KEY (product_id)
-        REFERENCES products(id) 
+        REFERENCES product(id) 
     );
   `;
 
@@ -44,24 +47,37 @@ const { DB } = require("../config");
         product_id     integer,
         cart_id        integer,
         FOREIGN KEY (product_id)
-          REFERENCES product(id),
+          REFERENCES products(id),
         FOREIGN KEY (cart_id)
-          REFERENCES cart(id)
+          REFERENCES carts(id)
       );
   `;
 
   try {
     // Make a temporary client so we can create tables in the database
-    console.log(DB);
     const db = new Client({
       user: DB.PGUSER,
       host: DB.PGHOST,
-      database: DB.PGDATABASE,
+      database: "postgres",
       password: DB.PGPASSWORD,
       port: DB.PGPORT,
     });
 
     await db.connect();
+    try {
+      await db.query(createDatabase);
+    } catch (error) {
+      console.error(error);
+      console.debug("Switching to ecommerce_project");
+      db.database = DB.PGDATABASE;
+      await db.connect({
+        user: DB.PGUSER,
+        host: DB.PGHOST,
+        database: DB.PGDATABASE,
+        password: DB.PGPASSWORD,
+        port: DB.PGPORT,
+      });
+    }
 
     // Create tables on database
     await db.query(createUsersTable);
