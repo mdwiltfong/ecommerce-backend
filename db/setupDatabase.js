@@ -54,7 +54,7 @@ const { DB } = require("../config");
   `;
 
   try {
-    // Make a temporary client so we can create tables in the database
+    // Make a temporary client to connect to postgres in order to create database.
 
     const dbPostGres = new Client({
       user: DB.PGUSER,
@@ -63,6 +63,7 @@ const { DB } = require("../config");
       password: DB.PGPASSWORD,
       port: DB.PGPORT,
     });
+    // Client for actual ecommerce project database.
     const dbECommerceProjectTest = new Client({
       user: DB.PGUSER,
       host: DB.PGHOST,
@@ -71,8 +72,8 @@ const { DB } = require("../config");
       port: DB.PGPORT,
     });
     /*
-    @hazeltonbw, although this secript is able to create the schema of the tables, it does not create the database itself.
-    Although you are not doing anything special with the database itself, I think the script is close enough to making it 
+    @hazeltonbw, although this script is able to create the schema of the tables, it does not create the database itself.
+    You are not doing anything special with the database itself, I think the script is close enough to making it 
     for contributors.
     */
     /*
@@ -86,8 +87,9 @@ const { DB } = require("../config");
    https://stackoverflow.com/questions/20813154/node-postgres-create-database
 
    */
-    await dbPostGres.connect();
+
     try {
+      await dbPostGres.connect();
       await dbPostGres.query(createDatabase);
     } catch (error) {
       if (error.code == "42P04") {
