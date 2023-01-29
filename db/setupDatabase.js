@@ -3,7 +3,7 @@ const { DB } = require("../config");
 
 (async () => {
   const createDatabase = `
-  CREATE DATABASE ecommerce_project;
+  CREATE DATABASE ${DB.PGDATABASE};
   `;
   const createUsersTable = `
     CREATE TABLE IF NOT EXISTS public.users (
@@ -55,6 +55,7 @@ const { DB } = require("../config");
 
   try {
     // Make a temporary client so we can create tables in the database
+
     const dbPostGres = new Client({
       user: DB.PGUSER,
       host: DB.PGHOST,
@@ -89,10 +90,14 @@ const { DB } = require("../config");
     try {
       await dbPostGres.query(createDatabase);
     } catch (error) {
-      console.error(error);
+      if (error.code == "42P04") {
+        console.error(`${DB.PGDATABASE} already exists`);
+      } else {
+        console.error(error);
+      }
     } finally {
-      await dbPostGres.end();
-      console.debug(`Switching to ${DB.PGDATABASE}`);
+      dbPostGres.end();
+      console.debug(`Switching from postgres to ${DB.PGDATABASE}.`);
       await dbECommerceProjectTest.connect();
     }
 
