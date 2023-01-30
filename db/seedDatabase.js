@@ -6,24 +6,26 @@ const dotenv = require("dotenv").config({
 });
 function queryCallbackHandler(err, result) {
   if (err) console.error(err);
-  if (result.rowCount > 0) {
-    console.info("Rows Inserted");
+  if (result) {
+    if (result.rowCount > 0) {
+      console.info("Rows Inserted");
+    }
   }
 }
 (async () => {
   const clearUsersTable = `
-    DELETE FROM users;
+    DELETE FROM users
     `;
   const clearProductsTable = `
-    DELETE FROM products;
+    DELETE FROM products
     `;
   const clearOrdersTable = `
-    DELETE FROM orders;`;
+    DELETE FROM orders`;
   const clearCartsTable = `
-    DELETE FROM carts;
+    DELETE FROM carts
     `;
   const clearCartItemsTable = `
-    DELETE FROM cartitems;
+    DELETE FROM cartitems
     `;
   // Users whose passwords are "password"
   const seedUsersTable = `
@@ -77,7 +79,7 @@ function queryCallbackHandler(err, result) {
     try {
       await dbECommerceProjectTest.connect();
     } catch (error) {
-      console.error(`There was an issue creating ${DB.PGDATABASE}: ` + error);
+      console.error(`There was an issue connecting ${DB.PGDATABASE}: ` + error);
     }
     //Clear data in tables. That way it can be used to refresh the db.
     await dbECommerceProjectTest.query(clearUsersTable, queryCallbackHandler);
@@ -95,9 +97,12 @@ function queryCallbackHandler(err, result) {
     // Seed tables on database
     await dbECommerceProjectTest.query(seedUsersTable, queryCallbackHandler);
     await dbECommerceProjectTest.query(seedProductsTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(seedOrdersTable);
-    await dbECommerceProjectTest.query(seedCartsTable);
-    await dbECommerceProjectTest.query(seedCartItemsTable);
+    await dbECommerceProjectTest.query(seedOrdersTable, queryCallbackHandler);
+    await dbECommerceProjectTest.query(seedCartsTable, queryCallbackHandler);
+    await dbECommerceProjectTest.query(
+      seedCartItemsTable,
+      queryCallbackHandler
+    );
 
     await dbECommerceProjectTest.end();
   } catch (err) {

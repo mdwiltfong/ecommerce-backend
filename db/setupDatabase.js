@@ -29,7 +29,7 @@ const { DB } = require("../config");
       date             date,
       product_id       integer,
       FOREIGN KEY (product_id)
-        REFERENCES products(id) 
+        REFERENCES products(id) ON DELETE CASCADE
     );
   `;
 
@@ -47,9 +47,9 @@ const { DB } = require("../config");
         product_id     integer,
         cart_id        integer,
         FOREIGN KEY (product_id)
-          REFERENCES products(id),
+          REFERENCES products(id) ON DELETE CASCADE,
         FOREIGN KEY (cart_id)
-          REFERENCES carts(id)
+          REFERENCES carts(id) ON DELETE CASCADE
       );
   `;
 
