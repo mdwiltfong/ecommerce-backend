@@ -1,9 +1,30 @@
+const { query } = require("express");
 const { Client } = require("pg");
 const { DB } = require("../config");
 const dotenv = require("dotenv").config({
   path: "../.env",
 });
+function queryCallbackHandler(err, result) {
+  if (err) console.error(err);
+  if (result.rowCount > 0) {
+    console.info("Rows Inserted");
+  }
+}
 (async () => {
+  const clearUsersTable = `
+    DELETE FROM users;
+    `;
+  const clearProductsTable = `
+    DELETE FROM products;
+    `;
+  const clearOrdersTable = `
+    DELETE FROM orders;`;
+  const clearCartsTable = `
+    DELETE FROM carts;
+    `;
+  const clearCartItemsTable = `
+    DELETE FROM cartitems;
+    `;
   // Users whose passwords are "password"
   const seedUsersTable = `
     INSERT INTO users OVERRIDING SYSTEM VALUE
@@ -58,15 +79,22 @@ const dotenv = require("dotenv").config({
     } catch (error) {
       console.error(`There was an issue creating ${DB.PGDATABASE}: ` + error);
     }
+    //Clear data in tables. That way it can be used to refresh the db.
+    await dbECommerceProjectTest.query(clearUsersTable, queryCallbackHandler);
+    await dbECommerceProjectTest.query(
+      clearProductsTable,
+      queryCallbackHandler
+    );
+    await dbECommerceProjectTest.query(clearOrdersTable, queryCallbackHandler);
+    await dbECommerceProjectTest.query(clearCartsTable, queryCallbackHandler);
+    await dbECommerceProjectTest.query(
+      clearCartItemsTable,
+      queryCallbackHandler
+    );
 
-    // Create tables on database
-    await dbECommerceProjectTest.query(seedUsersTable, (err, res) => {
-      if (res) console.log(res);
-      if (err) console.error(err);
-    });
-    await dbECommerceProjectTest.query(seedProductsTable, (err, res) => {
-      if (err) console.error("Error in Products Table:" + err);
-    });
+    // Seed tables on database
+    await dbECommerceProjectTest.query(seedUsersTable, queryCallbackHandler);
+    await dbECommerceProjectTest.query(seedProductsTable, queryCallbackHandler);
     await dbECommerceProjectTest.query(seedOrdersTable);
     await dbECommerceProjectTest.query(seedCartsTable);
     await dbECommerceProjectTest.query(seedCartItemsTable);
