@@ -4,14 +4,6 @@ const { DB } = require("../config");
 const dotenv = require("dotenv").config({
   path: "../.env",
 });
-function queryCallbackHandler(err, result) {
-  if (err) console.error(err);
-  if (result) {
-    if (result.rowCount > 0) {
-      console.info("Rows Inserted");
-    }
-  }
-}
 (async () => {
   const clearUsersTable = `
     DELETE FROM users
@@ -65,47 +57,36 @@ function queryCallbackHandler(err, result) {
      VALUES
     (1,1,1)
   `;
-
+  // Client for actual ecommerce project database.
+  const dbECommerceProjectTest = new Client({
+    user: DB.PGUSER,
+    host: DB.PGHOST,
+    database: DB.PGDATABASE,
+    password: DB.PGPASSWORD,
+    port: DB.PGPORT,
+  });
   try {
-    // Client for actual ecommerce project database.
-    const dbECommerceProjectTest = new Client({
-      user: DB.PGUSER,
-      host: DB.PGHOST,
-      database: DB.PGDATABASE,
-      password: DB.PGPASSWORD,
-      port: DB.PGPORT,
-    });
-
     try {
       await dbECommerceProjectTest.connect();
     } catch (error) {
       console.error(`There was an issue connecting ${DB.PGDATABASE}: ` + error);
     }
     //Clear data in tables. That way it can be used to refresh the db.
-    await dbECommerceProjectTest.query(clearUsersTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(
-      clearProductsTable,
-      queryCallbackHandler
-    );
-    await dbECommerceProjectTest.query(clearOrdersTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(clearCartsTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(
-      clearCartItemsTable,
-      queryCallbackHandler
-    );
+    await dbECommerceProjectTest.query(clearUsersTable);
+    await dbECommerceProjectTest.query(clearProductsTable);
+    await dbECommerceProjectTest.query(clearOrdersTable);
+    await dbECommerceProjectTest.query(clearCartsTable);
+    await dbECommerceProjectTest.query(clearCartItemsTable);
 
     // Seed tables on database
-    await dbECommerceProjectTest.query(seedUsersTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(seedProductsTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(seedOrdersTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(seedCartsTable, queryCallbackHandler);
-    await dbECommerceProjectTest.query(
-      seedCartItemsTable,
-      queryCallbackHandler
-    );
-
-    await dbECommerceProjectTest.end();
+    await dbECommerceProjectTest.query(seedUsersTable);
+    await dbECommerceProjectTest.query(seedProductsTable);
+    await dbECommerceProjectTest.query(seedOrdersTable);
+    await dbECommerceProjectTest.query(seedCartsTable);
+    await dbECommerceProjectTest.query(seedCartItemsTable);
   } catch (err) {
     console.log("ERROR SEEDING ONE OR MORE TABLES: ", err);
+  } finally {
+    await dbECommerceProjectTest.end();
   }
 })();
