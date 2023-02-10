@@ -23,7 +23,7 @@
   "files.simpleDialog.enable": true,
   "workbench.fontAliasing": "antialiased",
   "workbench.iconTheme": "vs-seti",
-  "workbench.sideBar.location": "right",
+  "workbench.sideBar.location": "left",
   "workbench.statusBar.visible": true,
   "workbench.editor.labelFormat": "default",
   "window.commandCenter": true,

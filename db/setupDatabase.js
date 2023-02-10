@@ -2,6 +2,9 @@ const { Client } = require("pg");
 const { DB } = require("../config");
 
 (async () => {
+  const createDatabase = `
+  CREATE DATABASE ${DB.PGDATABASE};
+  `;
   const createUsersTable = `
     CREATE TABLE IF NOT EXISTS public.users (
       id               integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
@@ -26,7 +29,7 @@ const { DB } = require("../config");
       date             date,
       product_id       integer,
       FOREIGN KEY (product_id)
-        REFERENCES products(id) 
+        REFERENCES products(id) ON DELETE CASCADE
     );
   `;
 
@@ -44,32 +47,70 @@ const { DB } = require("../config");
         product_id     integer,
         cart_id        integer,
         FOREIGN KEY (product_id)
-          REFERENCES product(id),
+          REFERENCES products(id) ON DELETE CASCADE,
         FOREIGN KEY (cart_id)
-          REFERENCES cart(id)
+          REFERENCES carts(id) ON DELETE CASCADE
       );
   `;
 
   try {
-    // Make a temporary client so we can create tables in the database
-    const db = new Client({
+    // Make a temporary client to connect to postgres in order to create database.
+
+    const dbPostGres = new Client({
+      user: DB.PGUSER,
+      host: DB.PGHOST,
+      database: "postgres",
+      password: DB.PGPASSWORD,
+      port: DB.PGPORT,
+    });
+    // Client for actual ecommerce project database.
+    const dbECommerceProjectTest = new Client({
       user: DB.PGUSER,
       host: DB.PGHOST,
       database: DB.PGDATABASE,
       password: DB.PGPASSWORD,
       port: DB.PGPORT,
     });
+    /*
+    @hazeltonbw, although this script is able to create the schema of the tables, it does not create the database itself.
+    You are not doing anything special with the database itself, I think the script is close enough to making it 
+    for contributors.
+    */
+    /*
+   @hazeltonbw First we'll connect to postgres in order to create the database. Typically postgres is the default db in PSQL. 
+   There is a chance that maybe a contributor doesn't have postgres locally. In which case it's up to the user to execute the SQL
+   themselves. You may be thinking this exception might defeat the whole purpose of trying to create the DB locally.
 
-    await db.connect();
+   I agree, and I think I found some stackoverflow articles that offer a good solution, although it will require restructuring the code.I'll
+   let you decide! 
+
+   https://stackoverflow.com/questions/20813154/node-postgres-create-database
+
+   */
+
+    try {
+      await dbPostGres.connect();
+      await dbPostGres.query(createDatabase);
+    } catch (error) {
+      if (error.code == "42P04") {
+        console.error(`${DB.PGDATABASE} already exists`);
+      } else {
+        console.error(error);
+      }
+    } finally {
+      dbPostGres.end();
+      console.debug(`Switching from postgres to ${DB.PGDATABASE}.`);
+      await dbECommerceProjectTest.connect();
+    }
 
     // Create tables on database
-    await db.query(createUsersTable);
-    await db.query(createProductsTable);
-    await db.query(createOrdersTable);
-    await db.query(createCartsTable);
-    await db.query(createCartItemsTable);
+    await dbECommerceProjectTest.query(createUsersTable);
+    await dbECommerceProjectTest.query(createProductsTable);
+    await dbECommerceProjectTest.query(createOrdersTable);
+    await dbECommerceProjectTest.query(createCartsTable);
+    await dbECommerceProjectTest.query(createCartItemsTable);
 
-    await db.end();
+    await dbECommerceProjectTest.end();
   } catch (err) {
     console.log("ERROR CREATING ONE OR MORE TABLES: ", err);
   }
