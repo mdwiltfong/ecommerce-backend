@@ -16,7 +16,7 @@ const getProducts = async (queryOpts) => {
   }
 
   // If there is no query options, get all products
-  const statement = "SELECT * FROM products ORDER BY id ASC";
+  const statement = "SELECT * FROM products ORDER BY product_id ASC";
   try {
     const result = await pool.query(statement);
     return result.rows;
@@ -32,7 +32,7 @@ const getProducts = async (queryOpts) => {
  */
 const getProductsByCategory = async (category) => {
   const query = {
-    text: "SELECT * FROM products WHERE category ILIKE '%'||$1||'%'",
+    text: "SELECT * FROM products join categories using(category_id) WHERE categories.name ILIKE '%'||$1||'%'",
     values: [category],
   };
 
@@ -55,7 +55,7 @@ const getProductsByName = async (name) => {
       // ILIKE = case insensitive query
       // LIKE requires special syntax to surround with %    '%'||$1||'%'
       // https://stackoverflow.com/questions/60257510/postgres-node-search-query-using-like-how-to-set
-      "SELECT * FROM products WHERE name ILIKE '%'||$1||'%' ORDER BY name ASC",
+      "SELECT * FROM products WHERE title ILIKE '%'||$1||'%' ORDER BY title ASC",
     values: [name],
   };
   try {
@@ -74,7 +74,7 @@ const getProductsByName = async (name) => {
 
 const getProductById = async (id) => {
   const query = {
-    text: "SELECT * FROM products WHERE id = $1",
+    text: "SELECT * FROM products WHERE product_id = $1",
     values: [id],
   };
   try {
@@ -104,7 +104,7 @@ const updateProductById = async (id, data) => {
   }
 
   const query = {
-    text: "UPDATE products SET name = $1, price = $2, description = $3, category = $4 WHERE id = $5 RETURNING *",
+    text: "UPDATE products SET title = $1, price = $2, description = $3, category_id = (select categories.category_id from categories where categories.name = $4 LIMIT 1) WHERE product_id = $5 RETURNING *",
     values: [name, price, description, category, id],
   };
 
