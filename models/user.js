@@ -177,7 +177,7 @@ const deleteUserById = async (userId) => {
   }
 
   const query = {
-    text: "DELETE FROM users WHERE id = $1",
+    text: "DELETE FROM users WHERE user_id = $1",
     values: [userId],
   };
 

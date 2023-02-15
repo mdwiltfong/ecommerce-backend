@@ -9,11 +9,12 @@ const createError = require("http-errors");
  */
 const getProducts = async (queryOpts) => {
   const { category, name } = queryOpts;
-  if (name) {
-    return getProductsByName(name);
-  } else if (category) {
-    return getProductsByCategory(category);
-  }
+  try {
+    if (name) {
+      return getProductsByName(name);
+    } else if (category) {
+      return getProductsByCategory(category);
+    }
 
   // If there is no query options, get all products
   const statement = "SELECT * FROM products ORDER BY product_id ASC";
