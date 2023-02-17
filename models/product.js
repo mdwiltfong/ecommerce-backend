@@ -16,9 +16,8 @@ const getProducts = async (queryOpts) => {
       return getProductsByCategory(category);
     }
 
-  // If there is no query options, get all products
-  const statement = "SELECT * FROM products ORDER BY product_id ASC";
-  try {
+    // If there is no query options, get all products
+    const statement = "SELECT * FROM products ORDER BY product_id ASC";
     const result = await pool.query(statement);
     return result.rows;
   } catch (err) {
