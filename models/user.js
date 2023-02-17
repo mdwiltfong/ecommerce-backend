@@ -89,7 +89,7 @@ const updateUserPassword = async (data) => {
   const hashedPassword = await hashPassword(password);
 
   const query = {
-    text: "UPDATE users SET password = $1 WHERE id = $2 RETURNING *",
+    text: "UPDATE users SET password = $1 WHERE user_id = $2 RETURNING *",
     values: [hashedPassword, id],
   };
 
