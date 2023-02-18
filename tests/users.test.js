@@ -1,16 +1,23 @@
 const request = require("supertest");
 const app = require("../index");
+const seedDatabase = require("../db/seedDatabase");
+// create our mockData
+
+const mockData = require("./mockData");
+let mockDataInstance = new mockData();
+
+beforeAll(async () => {
+  await seedDatabase();
+});
 
 describe("Users route", () => {
-  const body = {
-    email: "testEmail@email.com",
-    password: "testPassword",
-  };
   let response;
-  let userId;
+  const users = mockDataInstance.getMockUsers();
   const userObject = expect.objectContaining({
-    id: expect.any(Number),
+    user_id: expect.any(Number),
     cart_id: null,
+    fname: expect.any(String),
+    lname: expect.any(String),
     email: expect.any(String),
     password: expect.any(String),
   });
@@ -18,15 +25,10 @@ describe("Users route", () => {
     message: expect.any(String),
   });
 
-  beforeAll(async () => {
-    // register a user before running tests
-    await request(app).post("/auth/register").send(body);
-    // get users list
-    response = await request(app).get("/users");
-    userId = response.body[0].id;
-  });
-
   describe("GET /users", () => {
+    beforeAll(async () => {
+      response = await request(app).get("/users");
+    });
     it("should return HTTP 200", () => {
       expect(response.statusCode).toBe(200);
     });
@@ -39,8 +41,7 @@ describe("Users route", () => {
   describe("GET /users/:id", () => {
     describe("given a registered users id", () => {
       beforeAll(async () => {
-        response = await request(app).get("/users");
-        const url = `/users/${userId}`;
+        const url = `/users/${users[0].user_id}`;
         response = await request(app).get(url);
       });
 
@@ -70,7 +71,7 @@ describe("Users route", () => {
   describe("PUT /users/:id", () => {
     let newPassword = "thisIsANewPassword";
     beforeAll(async () => {
-      response = await request(app).put(`/users/${userId}`).send({
+      response = await request(app).put(`/users/${users[0].user_id}`).send({
         password: newPassword,
       });
     });
@@ -104,7 +105,7 @@ describe("Users route", () => {
 
   describe("DELETE /users/:id", () => {
     beforeAll(async () => {
-      response = await request(app).delete(`/users/${userId}`);
+      response = await request(app).delete(`/users/${users[0].user_id}`);
     });
     describe("given a valid user id", () => {
       it("should return HTTP 200", () => {

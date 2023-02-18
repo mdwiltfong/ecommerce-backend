@@ -1,40 +1,37 @@
 const request = require("supertest");
 const app = require("../index");
+const mockData = require("./mockData");
+const mockDataInstance = new mockData();
+const seedDatabase = require("../db/seedDatabase");
+
+beforeAll(async () => {
+  await seedDatabase();
+});
 
 describe("Products route", () => {
   // variable setup needed to test product route
   let response;
-  let productId;
+  const products = mockDataInstance.getMockProducts();
   const productObject = expect.objectContaining({
-    id: expect.any(Number),
-    name: expect.any(String),
+    product_id: expect.any(Number),
+    category_id: expect.any(Number),
+    title: expect.any(String),
     price: expect.any(String),
     description: expect.any(String),
-    category: expect.any(String),
   });
   let arrayOfProducts = expect.arrayContaining([productObject]);
   const emptyObject = expect.objectContaining({});
   const emptyArray = expect.arrayContaining([]);
-  const urls = {
-    good: [
-      "/products?category=fishing",
-      "/products?category=electronics",
-      "/products?name=test",
-      "/products?name=fishing",
-    ],
-    bad: [
-      "/products?category=wgwergrwgrgreg",
-      "/products?name=rgkjergiergreger",
-      "/products?name=3230222g2",
-      "/products?name=_________123",
-    ],
-  };
+  const badUrls = [
+    "/products?category=wgwergrwgrgreg",
+    "/products?name=rgkjergiergreger",
+    "/products?name=3230222g2",
+    "/products?name=_________123",
+  ];
 
   describe("GET /products", () => {
     beforeAll(async () => {
       response = await request(app).get("/products");
-      // set a productId variable for later testing
-      productId = response.body[0].id;
     });
 
     it("should return HTTP 200", async () => {
@@ -51,7 +48,15 @@ describe("Products route", () => {
     // see urls object above to see possible queries
     describe("given a query that matches something in the database", () => {
       it("should ", async () => {
-        for (const url of urls.good) {
+        for (const product of products) {
+          // Test category first
+          let url = `/products?category=category%20${product.category_id}`;
+
+          response = await request(app).get(url);
+          expect(response.statusCode).toBe(200);
+          expect(response.body).toEqual(arrayOfProducts);
+          // Test title next
+          url = `/products?query=${product.title}`;
           response = await request(app).get(url);
           expect(response.statusCode).toBe(200);
           expect(response.body).toEqual(arrayOfProducts);
@@ -61,7 +66,7 @@ describe("Products route", () => {
 
     describe("given a query that doesnt match something in the database", () => {
       it("should ", async () => {
-        for (const url of urls.bad) {
+        for (const url of badUrls) {
           response = await request(app).get(url);
           expect(response.statusCode).toBe(200);
           expect(response.body).toEqual(emptyArray);
@@ -73,7 +78,9 @@ describe("Products route", () => {
   describe("GET /products/:id", () => {
     describe("given a valid id", () => {
       beforeAll(async () => {
-        response = await request(app).get(`/products/${productId}`);
+        response = await request(app).get(
+          `/products/${products[0].product_id}`
+        );
       });
 
       it("should return HTTP 200", () => {
@@ -126,12 +133,13 @@ describe("Products route", () => {
 
     describe("given a valid id", () => {
       beforeAll(async () => {
-        response = await request(app).put(`/products/${productId}`).send({
-          name: "Great product name",
-          price: 350.0,
-          description: "What a great description",
-          category: "Fishing",
-        });
+        response = await request(app)
+          .put(`/products/${products[0].product_id}`)
+          .send({
+            name: "Great product name",
+            price: 350.0,
+            description: "What a great description",
+          });
       });
 
       it("should return HTTP 200", () => {
@@ -165,7 +173,9 @@ describe("Products route", () => {
 
     describe("given a valid id", () => {
       beforeAll(async () => {
-        response = await request(app).delete(`/products/${productId}`);
+        response = await request(app).delete(
+          `/products/${products[0].product_id}`
+        );
       });
 
       it("should return HTTP 204", () => {
