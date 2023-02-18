@@ -96,7 +96,7 @@ const getProductById = async (id) => {
  * @returns {Object} The updated product object
  */
 const updateProductById = async (id, data) => {
-  const { name, price, description, category } = data;
+  const { name, price, description } = data;
   // Check if product exists first
   const product = await getProductById(id);
   if (!product) {
@@ -104,8 +104,8 @@ const updateProductById = async (id, data) => {
   }
 
   const query = {
-    text: "UPDATE products SET title = $1, price = $2, description = $3, category_id = (select categories.category_id from categories where categories.name = $4 LIMIT 1) WHERE product_id = $5 RETURNING *",
-    values: [name, price, description, category, id],
+    text: `UPDATE products SET title = $1, price = $2, description = $3 WHERE product_id = $4 RETURNING *`,
+    values: [name, price, description, id],
   };
 
   try {
@@ -130,7 +130,7 @@ const deleteProductById = async (id) => {
   }
 
   const query = {
-    text: "DELETE FROM products WHERE id = $1",
+    text: "DELETE FROM products WHERE product_id = $1",
     values: [id],
   };
 

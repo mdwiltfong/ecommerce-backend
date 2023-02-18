@@ -12,7 +12,7 @@ const getUsers = async () => {
     const result = await pool.query(statement);
     return result.rows;
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     throw new Error(err);
   }
 };
@@ -54,6 +54,7 @@ const createUser = async (data) => {
     const result = await pool.query(query);
     return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
+    //console.error(err);
     throw new Error(err);
   }
 };
@@ -116,7 +117,7 @@ const findUserByEmail = async (email) => {
     const result = await pool.query(query);
     return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
-    console.error(err);
+    //console.error(err);
     throw err;
   }
 };
@@ -159,7 +160,7 @@ const loginUser = async (data) => {
 
     return user;
   } catch (err) {
-    console.error(err, "herhergkerwgkerwgk");
+    //console.error(err, "herhergkerwgkerwgk");
     throw err;
   }
 };
