@@ -40,6 +40,11 @@ module.exports = class mockData {
         lname: `l${i + 1}`,
         email: `f${i + 1}.l${i + 1}@test.com`,
         password: `password`,
+        /*
+        @hazeltonbw Although these are test accounts, you may want to encrypt the pw. 
+        This way, when you start implementing tests around authentication, you can assert that 
+        your decryption comes out as "password."
+        */
       };
 
       this.#mockUsers.push(user);
