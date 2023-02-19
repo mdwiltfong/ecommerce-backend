@@ -1,6 +1,5 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const bcrypt = require("bcrypt");
 const User = require("../models/user");
 
 module.exports = (app) => {
@@ -10,12 +9,12 @@ module.exports = (app) => {
 
   // Set method to serialize data to store in cookie
   passport.serializeUser((user, done) => {
-    done(null, user.id);
+    done(null, user.user_id);
   });
 
   // Set method to deserialize data stored in cookie and attach to req.user
-  passport.deserializeUser((id, done) => {
-    done(null, { id });
+  passport.deserializeUser((user_id, done) => {
+    done(null, { user_id });
   });
 
   // Configure local strategy to be use for local login

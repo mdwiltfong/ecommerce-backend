@@ -7,11 +7,12 @@ const bcrypt = require("bcrypt");
  * @returns An array of all users
  */
 const getUsers = async () => {
-  const statement = "SELECT * FROM users ORDER BY id ASC";
+  const statement = "SELECT * FROM users ORDER BY user_id ASC";
   try {
     const result = await pool.query(statement);
     return result.rows;
   } catch (err) {
+    //console.log(err);
     throw new Error(err);
   }
 };
@@ -23,7 +24,7 @@ const getUsers = async () => {
  */
 const getUserById = async (id) => {
   const query = {
-    text: "SELECT * FROM users WHERE id = $1",
+    text: "SELECT * FROM users WHERE user_id = $1",
     values: [id],
   };
 
@@ -41,18 +42,19 @@ const getUserById = async (id) => {
  * @returns An object with the newly created users information
  */
 const createUser = async (data) => {
-  const { email, password } = data;
+  const { email, password, fname, lname } = data;
   const hashedPassword = await hashPassword(password);
 
   const query = {
-    text: "INSERT INTO users(password, email) VALUES($1, $2) RETURNING *",
-    values: [hashedPassword, email],
+    text: "INSERT INTO users(password, email, fname, lname) VALUES($1, $2, $3, $4) RETURNING *",
+    values: [hashedPassword, email, fname, lname],
   };
 
   try {
     const result = await pool.query(query);
     return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
+    //console.error(err);
     throw new Error(err);
   }
 };
@@ -88,7 +90,7 @@ const updateUserPassword = async (data) => {
   const hashedPassword = await hashPassword(password);
 
   const query = {
-    text: "UPDATE users SET password = $1 WHERE id = $2 RETURNING *",
+    text: "UPDATE users SET password = $1 WHERE user_id = $2 RETURNING *",
     values: [hashedPassword, id],
   };
 
@@ -115,6 +117,7 @@ const findUserByEmail = async (email) => {
     const result = await pool.query(query);
     return result.rows?.length ? result.rows[0] : null;
   } catch (err) {
+    //console.error(err);
     throw err;
   }
 };
@@ -157,6 +160,7 @@ const loginUser = async (data) => {
 
     return user;
   } catch (err) {
+    //console.error(err, "herhergkerwgkerwgk");
     throw err;
   }
 };
@@ -174,7 +178,7 @@ const deleteUserById = async (userId) => {
   }
 
   const query = {
-    text: "DELETE FROM users WHERE id = $1",
+    text: "DELETE FROM users WHERE user_id = $1",
     values: [userId],
   };
 

@@ -1,62 +1,110 @@
-const { query } = require("express");
+/*
+  Seeds the database for testing purposes
+*/
 const { Client } = require("pg");
 const { DB } = require("../config");
+const mockData = require("../tests/mockData");
+const pgp = require("pg-promise")();
 const dotenv = require("dotenv").config({
   path: "../.env",
 });
-(async () => {
-  const clearUsersTable = `
-    DELETE FROM users
-    `;
-  const clearProductsTable = `
-    DELETE FROM products
-    `;
-  const clearOrdersTable = `
-    DELETE FROM orders`;
-  const clearCartsTable = `
-    DELETE FROM carts
-    `;
-  const clearCartItemsTable = `
-    DELETE FROM cartitems
-    `;
-  // Users whose passwords are "password"
-  const seedUsersTable = `
-    INSERT INTO users OVERRIDING SYSTEM VALUE
-    VALUES
-    (1,'password','f1.l1@test.com'),
-    (2,'password','f2.l2@test.com'),
-    (3,'password','f3.l3@test.com')
-  `;
 
-  const seedProductsTable = `
-    INSERT INTO products OVERRIDING SYSTEM VALUE
-     VALUES
-    (1,'pants',123.45,'Description 1','Test1'),
-    (2,'shirt',10.00,'Description 2','Test2'),
-    (3,'pants',5.00,'Description 3','Test1'),
-    (4,'pants',9999.00,'Description 1','Test2');
-  `;
+const insertOverrideSystemValueIntoQuery = (query) => {
+  // hack to override system values, pg-promise doesn't seem to have documentation
+  // on how to add override system value so since the pgp helper insert function
+  // just returns a string lets modify it!
+  // This will ensure our data gets the same id's in the database everytime
+  const overrideStatement = " OVERRIDING SYSTEM VALUE";
+  let insertOverrideStatementAfter = query.indexOf(")");
+  return (
+    query.slice(0, insertOverrideStatementAfter + 1) +
+    overrideStatement +
+    query.slice(insertOverrideStatementAfter + 1)
+  );
+};
+module.exports = async () => {
+  // Create all the mock data given the mockData class
+  const mockDataInstance = new mockData();
 
-  const seedOrdersTable = `
-    INSERT INTO orders
-    OVERRIDING SYSTEM VALUE
-    VALUES
-   (1,'1992-09-25',2),
-   (2,'2023-01-29',3)
-  `;
+  // First clear all the tables to ensure we have a clean slate
+  const clearUsersTable = `DELETE FROM users`;
+  const clearProductsTable = `DELETE FROM products`;
+  const clearOrdersTable = `DELETE FROM orders`;
+  const clearCategoriesTable = `DELETE FROM categories`;
+  const clearCartsTable = `DELETE FROM carts`;
+  const clearCartItemsTable = `DELETE FROM cart_has_products`;
 
-  const seedCartsTable = `
-    INSERT INTO carts
-    OVERRIDING SYSTEM VALUE
-     VALUES
-    (1,'2023-09-25','2023-09-26')
-  `;
+  // mock users
+  const users = mockDataInstance.getMockUsers();
+  /* use pg-promise to help streamline the process,
+    and to help not repeat ourselves
+    this also allows us to easily change how many mock
+    items we want to run in our tests by changing
+    the constant 'AMOUNT_OF_MOCKS' 
 
-  const seedCartItemsTable = `
-    INSERT INTO cartitems OVERRIDING SYSTEM VALUE
-     VALUES
-    (1,1,1)
-  `;
+    insert function allows easy multiple inserts using an array of objects
+    that match the database schema
+    https://vitaly-t.github.io/pg-promise/helpers.html#.insert
+
+    ColumnSet defines the columns in the table so insert() knows what properties to use
+    https://vitaly-t.github.io/pg-promise/helpers.ColumnSet.html
+  */
+  let cs = new pgp.helpers.ColumnSet(
+    ["user_id", "fname", "lname", "email", "password"],
+    { table: DB.USERS_TABLE }
+  );
+  let seedUsersTable = pgp.helpers.insert(users, cs);
+  seedUsersTable = insertOverrideSystemValueIntoQuery(seedUsersTable);
+
+  const categories = mockDataInstance.getMockCategories();
+  cs = new pgp.helpers.ColumnSet(["category_id", "name"], {
+    table: DB.CATEGORIES_TABLE,
+  });
+  let seedCategoriesTable = pgp.helpers.insert(categories, cs);
+  seedCategoriesTable = insertOverrideSystemValueIntoQuery(seedCategoriesTable);
+
+  const products = mockDataInstance.getMockProducts();
+  cs = new pgp.helpers.ColumnSet(
+    ["product_id", "category_id", "title", "price", "description"],
+    {
+      table: DB.PRODUCTS_TABLE,
+    }
+  );
+  let seedProductsTable = pgp.helpers.insert(products, cs);
+  seedProductsTable = insertOverrideSystemValueIntoQuery(seedProductsTable);
+
+  const orders = mockDataInstance.getMockOrders();
+  cs = new pgp.helpers.ColumnSet(["order_id", "user_id", "date", "status"], {
+    table: DB.ORDERS_TABLE,
+  });
+  let seedOrdersTable = pgp.helpers.insert(orders, cs);
+  seedOrdersTable = insertOverrideSystemValueIntoQuery(seedOrdersTable);
+
+  const carts = mockDataInstance.getMockCarts();
+  cs = new pgp.helpers.ColumnSet(["cart_id", "created", "modified"], {
+    table: DB.CARTS_TABLE,
+  });
+  let seedCartsTable = pgp.helpers.insert(carts, cs);
+  seedCartsTable = insertOverrideSystemValueIntoQuery(seedCartsTable);
+
+  const cartHasProduct = mockDataInstance.getMockCartHasProducts();
+  cs = new pgp.helpers.ColumnSet(["cart_id", "product_id", "qty"], {
+    table: DB.CART_HAS_PRODUCTS_TABLE,
+  });
+  let seedCartHasProductsTable = pgp.helpers.insert(cartHasProduct, cs);
+  seedCartHasProductsTable = insertOverrideSystemValueIntoQuery(
+    seedCartHasProductsTable
+  );
+
+  const orderHasProduct = mockDataInstance.getMockOrderHasProducts();
+  cs = new pgp.helpers.ColumnSet(["order_id", "product_id", "qty"], {
+    table: DB.ORDER_HAS_PRODUCTS_TABLE,
+  });
+  let seedOrderHasProductsTable = pgp.helpers.insert(orderHasProduct, cs);
+  seedOrderHasProductsTable = insertOverrideSystemValueIntoQuery(
+    seedOrderHasProductsTable
+  );
+
   // Client for actual ecommerce project database.
   const dbECommerceProjectTest = new Client({
     user: DB.PGUSER,
@@ -75,18 +123,21 @@ const dotenv = require("dotenv").config({
     await dbECommerceProjectTest.query(clearUsersTable);
     await dbECommerceProjectTest.query(clearProductsTable);
     await dbECommerceProjectTest.query(clearOrdersTable);
+    await dbECommerceProjectTest.query(clearCategoriesTable);
     await dbECommerceProjectTest.query(clearCartsTable);
     await dbECommerceProjectTest.query(clearCartItemsTable);
 
     // Seed tables on database
     await dbECommerceProjectTest.query(seedUsersTable);
+    await dbECommerceProjectTest.query(seedCategoriesTable);
     await dbECommerceProjectTest.query(seedProductsTable);
     await dbECommerceProjectTest.query(seedOrdersTable);
     await dbECommerceProjectTest.query(seedCartsTable);
-    await dbECommerceProjectTest.query(seedCartItemsTable);
+    await dbECommerceProjectTest.query(seedCartHasProductsTable);
+    await dbECommerceProjectTest.query(seedOrderHasProductsTable);
   } catch (err) {
     console.log("ERROR SEEDING ONE OR MORE TABLES: ", err);
   } finally {
     await dbECommerceProjectTest.end();
   }
-})();
+};

@@ -3,54 +3,167 @@ const { DB } = require("../config");
 
 (async () => {
   const createDatabase = `
-  CREATE DATABASE ${DB.PGDATABASE};
+    CREATE DATABASE ${DB.PGDATABASE};
   `;
-  const createUsersTable = `
-    CREATE TABLE IF NOT EXISTS public.users (
-      id               integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
-      password         text             NOT NULL,
-      email            VARCHAR(50)      NOT NULL
+
+  const createCartsTable = `
+    DROP TABLE IF EXISTS public.${DB.CARTS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.CARTS_TABLE}
+    (
+        cart_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+        created date NOT NULL,
+        modified date NOT NULL,
+        PRIMARY KEY (cart_id)
     );
   `;
 
   const createProductsTable = `
-    CREATE TABLE IF NOT EXISTS public.products (
-      id               integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
-      name             VARCHAR(100)     NOT NULL,                                   
-      price            numeric          NOT NULL,
-      description      VARCHAR(200),
-      category         text                                       
+    DROP TABLE IF EXISTS public.${DB.PRODUCTS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.PRODUCTS_TABLE}
+    (
+        product_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+        category_id integer NOT NULL,
+        title text NOT NULL,
+        price numeric(5, 2) NOT NULL,
+        description text,
+        PRIMARY KEY (product_id)
+    );
+  `;
+
+  const createCartHasProductsTable = `
+    DROP TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
+    (
+        cart_id integer NOT NULL,
+        product_id integer NOT NULL,
+        qty integer NOT NULL
     );
   `;
 
   const createOrdersTable = `
-    CREATE TABLE IF NOT EXISTS public.orders (
-      id               integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
-      date             date,
-      product_id       integer,
-      FOREIGN KEY (product_id)
-        REFERENCES products(id) ON DELETE CASCADE
+    DROP TABLE IF EXISTS public.${DB.ORDERS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.ORDERS_TABLE}
+    (
+        order_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+        user_id integer NOT NULL,
+        date date NOT NULL,
+        status text NOT NULL,
+        PRIMARY KEY (order_id)
     );
   `;
 
-  const createCartsTable = `
-    CREATE TABLE IF NOT EXISTS public.carts (
-      id               integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
-      created          date,
-      modified         date                                     
+  const createUsersTable = `
+    DROP TABLE IF EXISTS public.${DB.USERS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.USERS_TABLE}
+    (
+        user_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+        cart_id integer,
+        fname character varying(20) NOT NULL,
+        lname character varying(20) NOT NULL,
+        email character varying(70) NOT NULL,
+        password text NOT NULL,
+        PRIMARY KEY (user_id)
     );
   `;
 
-  const createCartItemsTable = `
-      CREATE TABLE IF NOT EXISTS public.cartitems (
-        id             integer          PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
-        product_id     integer,
-        cart_id        integer,
-        FOREIGN KEY (product_id)
-          REFERENCES products(id) ON DELETE CASCADE,
-        FOREIGN KEY (cart_id)
-          REFERENCES carts(id) ON DELETE CASCADE
-      );
+  const createOrderHasProductsTable = `
+    DROP TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
+    (
+        order_id integer NOT NULL,
+        product_id integer NOT NULL,
+        qty integer NOT NULL
+    );
+  `;
+
+  const createCategoryTable = `
+    DROP TABLE IF EXISTS public.${DB.CATEGORIES_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS public.${DB.CATEGORIES_TABLE}
+    (
+        category_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+        name text NOT NULL,
+        PRIMARY KEY (category_id)
+    );
+  `;
+
+  const createUserSessionsTable = `
+    DROP TABLE IF EXISTS public.${DB.USER_SESSIONS_TABLE} CASCADE;
+
+    CREATE TABLE IF NOT EXISTS "${DB.USER_SESSIONS_TABLE}" (
+      "sid" varchar NOT NULL COLLATE "default",
+      "sess" json NOT NULL,
+      "expire" timestamp(6) NOT NULL
+    )
+    WITH (OIDS=FALSE);
+  `;
+
+  const addConstraints = `
+    ALTER TABLE IF EXISTS "${DB.USER_SESSIONS_TABLE}" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+    CREATE INDEX "IDX_session_expire" ON "${DB.USER_SESSIONS_TABLE}" ("expire");
+
+    ALTER TABLE IF EXISTS public.${DB.PRODUCTS_TABLE}
+        ADD FOREIGN KEY (category_id)
+        REFERENCES public.${DB.CATEGORIES_TABLE} (category_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
+        ADD FOREIGN KEY (cart_id)
+        REFERENCES public.${DB.CARTS_TABLE} (cart_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
+        ADD FOREIGN KEY (product_id)
+        REFERENCES public.${DB.PRODUCTS_TABLE} (product_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public.${DB.ORDERS_TABLE}
+        ADD FOREIGN KEY (user_id)
+        REFERENCES public.${DB.USERS_TABLE} (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public.${DB.USERS_TABLE}
+        ADD FOREIGN KEY (cart_id)
+        REFERENCES public.${DB.CARTS_TABLE} (cart_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
+        ADD FOREIGN KEY (order_id)
+        REFERENCES public.${DB.ORDERS_TABLE} (order_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
+        ADD FOREIGN KEY (product_id)
+        REFERENCES public.${DB.PRODUCTS_TABLE} (product_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+      
   `;
 
   try {
@@ -104,11 +217,15 @@ const { DB } = require("../config");
     }
 
     // Create tables on database
-    await dbECommerceProjectTest.query(createUsersTable);
-    await dbECommerceProjectTest.query(createProductsTable);
-    await dbECommerceProjectTest.query(createOrdersTable);
     await dbECommerceProjectTest.query(createCartsTable);
-    await dbECommerceProjectTest.query(createCartItemsTable);
+    await dbECommerceProjectTest.query(createProductsTable);
+    await dbECommerceProjectTest.query(createCartHasProductsTable);
+    await dbECommerceProjectTest.query(createOrdersTable);
+    await dbECommerceProjectTest.query(createUsersTable);
+    await dbECommerceProjectTest.query(createOrderHasProductsTable);
+    await dbECommerceProjectTest.query(createCategoryTable);
+    await dbECommerceProjectTest.query(createUserSessionsTable);
+    await dbECommerceProjectTest.query(addConstraints);
 
     await dbECommerceProjectTest.end();
   } catch (err) {
