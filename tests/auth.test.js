@@ -1,10 +1,16 @@
 const request = require("supertest");
+const { clearDatabase } = require("../db/seedDatabase");
 const app = require("../index");
 const User = require("../models/user");
 
 describe("Auth route", () => {
+  // beforeAll(async ()=> {
+  //   await clearDatabase();
+  // })
   // Create mock data needed for tests
   const body = {
+    fname: "First Name",
+    lname: "Last Name",
     email: "greatestEmailEv1@email.com",
     password: "testPassword",
   };
@@ -14,9 +20,11 @@ describe("Auth route", () => {
     {}, // missing both email & password key/value
   ];
   const userObject = {
-    id: expect.any(Number),
+    user_id: expect.any(Number),
     cart_id: null,
-    email: body.email,
+    fname: expect.any(String),
+    lname: expect.any(String),
+    email: expect.any(String),
     password: expect.any(String),
   };
 
@@ -24,9 +32,10 @@ describe("Auth route", () => {
     // after each test make sure our mock user doesn't exist.
     // this will ensure every test has a fresh start
     // and doesn't rely on stale data
+
     const userToDelete = await User.findUserByEmail(body.email);
     if (userToDelete) {
-      await User.deleteUserById(userToDelete.id);
+      await User.deleteUserById(userToDelete.user_id);
     }
   });
 

@@ -1,32 +1,41 @@
 const request = require("supertest");
 const app = require("../index");
+const { seedDatabase, clearDatabase } = require("../db/seedDatabase");
+// create our mockData
+
+const mockData = require("./mockData");
+let mockDataInstance = new mockData();
+
+// beforeAll(async () => {
+//   await seedDatabase();
+// });
+
+// afterAll(async () => {
+//   await clearDatabase();
+// })
 
 describe("Users route", () => {
-  const body = {
-    email: "testEmail@email.com",
-    password: "testPassword",
-  };
   let response;
-  let userId;
+  const users = mockDataInstance.getMockUsers();
   const userObject = expect.objectContaining({
-    id: expect.any(Number),
+    user_id: expect.any(Number),
     cart_id: null,
+    fname: expect.any(String),
+    lname: expect.any(String),
     email: expect.any(String),
     password: expect.any(String),
   });
   const messageObject = expect.objectContaining({
     message: expect.any(String),
   });
-
-  beforeAll(async () => {
-    // register a user before running tests
-    await request(app).post("/auth/register").send(body);
-    // get users list
-    response = await request(app).get("/users");
-    userId = response.body[0].id;
-  });
+  // we will change this to match the first user
+  let userId = 1;
 
   describe("GET /users", () => {
+    beforeAll(async () => {
+      response = await request(app).get("/users");
+      userId = response.body[0].user_id;
+    });
     it("should return HTTP 200", () => {
       expect(response.statusCode).toBe(200);
     });
@@ -39,7 +48,6 @@ describe("Users route", () => {
   describe("GET /users/:id", () => {
     describe("given a registered users id", () => {
       beforeAll(async () => {
-        response = await request(app).get("/users");
         const url = `/users/${userId}`;
         response = await request(app).get(url);
       });

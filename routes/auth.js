@@ -8,9 +8,7 @@ module.exports = (app, passport) => {
   router.post("/register", authController.registerNewUser);
   router.post(
     "/login/password",
-    passport.authenticate("local", {
-      failureRedirect: "/auth/login",
-    }),
+    passport.authenticate("local"),
     async (req, res, next) => {
       const user = req.user;
       if (!user) {
