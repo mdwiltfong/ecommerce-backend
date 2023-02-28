@@ -12,6 +12,7 @@ const { DB } = require("../config");
     CREATE TABLE IF NOT EXISTS public.${DB.CARTS_TABLE}
     (
         cart_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+        user_id integer NOT NULL ,
         created date NOT NULL,
         modified date NOT NULL,
         PRIMARY KEY (cart_id)
@@ -62,11 +63,11 @@ const { DB } = require("../config");
     CREATE TABLE IF NOT EXISTS public.${DB.USERS_TABLE}
     (
         user_id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
-        cart_id integer,
         fname character varying(20) NOT NULL,
         lname character varying(20) NOT NULL,
         email character varying(70) NOT NULL UNIQUE,
         password text NOT NULL,
+        isAdmin boolean NOT NULL,
         PRIMARY KEY (user_id)
     );
   `;
@@ -109,61 +110,50 @@ const { DB } = require("../config");
 
     CREATE INDEX "IDX_session_expire" ON "${DB.USER_SESSIONS_TABLE}" ("expire");
 
+
+    ALTER TABLE IF EXISTS public.${DB.CARTS_TABLE}
+      ADD CONSTRAINT fk_carts_user_id FOREIGN KEY (user_id)
+      REFERENCES public.${DB.USERS_TABLE} (user_id) MATCH SIMPLE
+      ON UPDATE NO ACTION
+      ON DELETE NO ACTION;
+
     ALTER TABLE IF EXISTS public.${DB.PRODUCTS_TABLE}
         ADD FOREIGN KEY (category_id)
         REFERENCES public.${DB.CATEGORIES_TABLE} (category_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
-
+        ON UPDATE NO ACTION;
 
     ALTER TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (cart_id)
         REFERENCES public.${DB.CARTS_TABLE} (cart_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+        ON DELETE NO ACTION;
 
 
     ALTER TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (product_id)
         REFERENCES public.${DB.PRODUCTS_TABLE} (product_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
-
+        ON DELETE NO ACTION;
 
     ALTER TABLE IF EXISTS public.${DB.ORDERS_TABLE}
         ADD FOREIGN KEY (user_id)
         REFERENCES public.${DB.USERS_TABLE} (user_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
-
-
-    ALTER TABLE IF EXISTS public.${DB.USERS_TABLE}
-        ADD FOREIGN KEY (cart_id)
-        REFERENCES public.${DB.CARTS_TABLE} (cart_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+        ON DELETE NO ACTION;
 
 
     ALTER TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (order_id)
         REFERENCES public.${DB.ORDERS_TABLE} (order_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+        ON DELETE NO ACTION;
 
 
     ALTER TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (product_id)
         REFERENCES public.${DB.PRODUCTS_TABLE} (product_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
-      
+        ON DELETE NO ACTION;
   `;
 
   try {
