@@ -69,7 +69,6 @@ const createOrder = async (data) => {
     };
 
     const orderHasProducts = await client.query(query);
-    throw new Error("wont commit");
     await client.query("COMMIT");
     if (!orderHasProducts.rows?.length) {
       // something went wrong if nothing was returned, because we already ensured
