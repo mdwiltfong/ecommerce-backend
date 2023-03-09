@@ -1,48 +1,62 @@
 const request = require("supertest");
-const { clearDatabase } = require("../db/seedDatabase");
 const app = require("../index");
 const User = require("../models/user");
 
+const mockData = require("./mockData");
+
 describe("Auth route", () => {
-  // beforeAll(async ()=> {
-  //   await clearDatabase();
-  // })
-  // Create mock data needed for tests
-  const body = {
-    fname: "First Name",
-    lname: "Last Name",
-    email: "greatestEmailEv1@email.com",
-    password: "testPassword",
-  };
+  let response;
+  let userId;
   const badBodyData = [
     { email: "testemail@email.com" }, // missing password key/value
     { password: "testpassword" }, // missing email key/value
     {}, // missing both email & password key/value
   ];
-  const userObject = {
+
+  const mockDataInstance = new mockData();
+  const users = mockDataInstance.createMockUsers();
+  const userObjectWithCart = {
     user_id: expect.any(Number),
-    cart_id: null,
     fname: expect.any(String),
     lname: expect.any(String),
     email: expect.any(String),
     password: expect.any(String),
+    isadmin: expect.any(Boolean),
+    cart_id: expect.any(Number),
+    modified: expect.any(String),
+    created: expect.any(String),
   };
 
-  afterEach(async () => {
-    // after each test make sure our mock user doesn't exist.
-    // this will ensure every test has a fresh start
-    // and doesn't rely on stale data
+  const userObject = {
+    user_id: expect.any(Number),
+    fname: expect.any(String),
+    lname: expect.any(String),
+    email: expect.any(String),
+    password: expect.any(String),
+    isadmin: expect.any(Boolean),
+  };
 
-    const userToDelete = await User.findUserByEmail(body.email);
-    if (userToDelete) {
-      await User.deleteUserById(userToDelete.user_id);
-    }
-  });
+  // afterEach(async () => {
+  //   // after each test make sure our mock user doesn't exist.
+  //   // this will ensure every test has a fresh start
+  //   // and doesn't rely on stale data
+
+  //   const userToDelete = await User.findUserByEmail(body.email);
+  //   if (userToDelete) {
+  //     await User.deleteUserById(userToDelete.user_id);
+  //   }
+  // });
 
   describe("POST /register", () => {
-    let response;
+    // register our test user
     beforeAll(async () => {
-      response = await request(app).post("/auth/register").send(body);
+      console.log(userId);
+      response = await request(app).post("/auth/register").send(users[0]);
+      console.log(response);
+    });
+    afterAll(async () => {
+      userId = response.body.user_id;
+      await request(app).delete(`/users/${userId}`);
     });
     describe("given a username and password in the body", () => {
       it("should return HTTP 200", async () => {
@@ -50,18 +64,21 @@ describe("Auth route", () => {
       });
 
       it("should return user information in the response body", () => {
-        expect(response.body).toEqual(userObject);
+        expect(response.body).toEqual(userObjectWithCart);
       });
     });
 
     describe("when the user already exists", () => {
-      let response;
       beforeAll(async () => {
         // Create our user
-        await request(app).post("/auth/register").send(body);
+        response = await request(app).post("/auth/register").send(users[0]);
+        userId = response.body.user_id;
         // run again as to replicate "duplicating" user
         // store in response so we can test against it
-        response = await request(app).post("/auth/register").send(body);
+        response = await request(app).post("/auth/register").send(users[0]);
+      });
+      afterAll(async () => {
+        await request(app).delete(`/users/${userId}`);
       });
 
       it("should return HTTP 409 with error message in body", async () => {
@@ -76,7 +93,7 @@ describe("Auth route", () => {
       it("should return a property in the body named message", () => {
         expect(response.body).toHaveProperty(
           "message",
-          `User with email: ${body.email} already exists!`
+          `User with email: ${users[0].email} already exists!`
         );
       });
     });
@@ -101,7 +118,10 @@ describe("Auth route", () => {
       // throw createError(401, "Incorrect username or password");
       let response;
       beforeAll(async () => {
-        response = await request(app).post("/auth/login/password").send(body);
+        response = await request(app).post("/auth/login/password").send({
+          email: "thisEmailDoesntExist@DoesntExist.com",
+          password: "password",
+        });
       });
 
       it("should return HTTP 401", async () => {
@@ -120,14 +140,22 @@ describe("Auth route", () => {
       let response;
       beforeAll(async () => {
         // Create a user first
-        await request(app).post("/auth/register").send(body);
+        response = await request(app).post("/auth/register").send(users[0]);
+        userId = response.body.user_id;
 
         // Then send a bad password with the new users email
         response = await request(app).post("/auth/login/password").send({
-          email: body.email,
+          email: users[0].email,
           password: "thisPasswordDoesntWork",
         });
       });
+      afterAll(async () => {
+        await request(app).delete(`/users/${userId}`);
+      });
+
+      // afterAll(async () => {
+      //   await request(app).delete(`/users/${userId}`);
+      // });
 
       it("should return HTTP 401", () => {
         expect(response.statusCode).toBe(401);
@@ -146,9 +174,16 @@ describe("Auth route", () => {
     });
 
     describe("when the given credentials from the user match the database", () => {
-      let response;
       beforeAll(async () => {
-        response = await request(app).post("/auth/register").send(body);
+        response = await request(app).post("/auth/register").send(users[0]);
+        userId = response.body.user_id;
+        response = await request(app)
+          .post("/auth/login/password")
+          .send(users[0]);
+      });
+
+      afterAll(async () => {
+        await request(app).delete(`/users/${userId}`);
       });
 
       it("should return HTTP 200", async () => {

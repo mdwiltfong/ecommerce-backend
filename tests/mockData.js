@@ -28,7 +28,6 @@ module.exports = class mockData {
   createMockUsers = () => {
     for (let i = 0; i < this.#AMOUNT_OF_MOCKS; i++) {
       const user = {
-        user_id: i + 1,
         fname: `f${i + 1}`,
         lname: `l${i + 1}`,
         email: `f${i + 1}.l${i + 1}@test.com`,
