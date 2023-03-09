@@ -133,7 +133,7 @@ const { DB } = require("../config");
         ADD FOREIGN KEY (product_id)
         REFERENCES public.${DB.PRODUCTS_TABLE} (product_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION;
+        ON DELETE CASCADE;
 
     ALTER TABLE IF EXISTS public.${DB.ORDERS_TABLE}
         ADD FOREIGN KEY (user_id)
