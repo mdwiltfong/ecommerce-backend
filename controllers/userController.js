@@ -35,14 +35,15 @@ const updateUserById = async (req, res, next) => {
 const deleteUserById = async (req, res, next) => {
   try {
     const { id } = req.params; //user_id
-    const { cart_id } = req.user;
+    const cart_id = await cartModel.getCartIdByUserId(id);
     // delete references to user so theres no conflicts in database
-    const deleteCart = await cartModel.deleteUsersCart(cart_id);
-    const response = await userModel.deleteUserById(id);
+    await cartModel.deleteUsersCart(cart_id);
+    await userModel.deleteUserById(id);
     res.status(200).send({
       message: `User with userId: ${id} deleted from database.`,
     });
   } catch (err) {
+    console.error(err);
     next(err);
   }
 };
