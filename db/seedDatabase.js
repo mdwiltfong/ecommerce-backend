@@ -54,7 +54,7 @@ const seedDatabase = async () => {
   // mock users
   const users = mockDataInstance.createMockUsers();
   let cs = new pgp.helpers.ColumnSet(
-    ["user_id", "fname", "lname", "email", "password", "isadmin"],
+    ["fname", "lname", "email", "password", "isadmin"],
     { table: DB.USERS_TABLE }
   );
   let seedUsersTable = pgp.helpers.insert(users, cs);
