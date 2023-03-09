@@ -58,7 +58,6 @@ module.exports = class mockData {
   createMockProducts = () => {
     for (let i = 0; i < this.#AMOUNT_OF_MOCKS; i++) {
       const product = {
-        product_id: i + 1,
         category_id: 1,
         title: `Pants #${i + 1}`,
         price: 123.45 + i,

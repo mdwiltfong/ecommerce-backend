@@ -69,7 +69,7 @@ const seedDatabase = async () => {
 
   const products = mockDataInstance.createMockProducts();
   cs = new pgp.helpers.ColumnSet(
-    ["product_id", "category_id", "title", "price", "description"],
+    ["category_id", "title", "price", "description"],
     {
       table: DB.PRODUCTS_TABLE,
     }
@@ -81,18 +81,15 @@ const seedDatabase = async () => {
   cs = new pgp.helpers.ColumnSet(["order_id", "user_id", "date", "status"], {
     table: DB.ORDERS_TABLE,
   });
-  let seedOrdersTable = pgp.helpers.insert(orders, cs);
-  seedOrdersTable = insertOverrideSystemValueIntoQuery(seedOrdersTable);
+  // let seedOrdersTable = pgp.helpers.insert(orders, cs);
+  // seedOrdersTable = insertOverrideSystemValueIntoQuery(seedOrdersTable);
 
-  const carts = mockDataInstance.createMockCarts();
-  cs = new pgp.helpers.ColumnSet(
-    ["cart_id", "user_id", "created", "modified"],
-    {
-      table: DB.CARTS_TABLE,
-    }
-  );
-  let seedCartsTable = pgp.helpers.insert(carts, cs);
-  seedCartsTable = insertOverrideSystemValueIntoQuery(seedCartsTable);
+  // const carts = mockDataInstance.createMockCarts();
+  // cs = new pgp.helpers.ColumnSet(["cart_id", "created", "modified"], {
+  //   table: DB.CARTS_TABLE,
+  // });
+  // let seedCartsTable = pgp.helpers.insert(carts, cs);
+  // seedCartsTable = insertOverrideSystemValueIntoQuery(seedCartsTable);
 
   const cartHasProduct = mockDataInstance.createMockCartHasProducts();
   cs = new pgp.helpers.ColumnSet(["cart_id", "product_id", "qty"], {
@@ -127,20 +124,20 @@ const seedDatabase = async () => {
       console.error(`There was an issue connecting ${DB.PGDATABASE}: ` + error);
     }
     // Clear data in tables. That way it can be used to refresh the db.
-    await dbECommerceProjectTest.query(clearCartsTable);
-    await dbECommerceProjectTest.query(clearUsersTable);
+    // await dbECommerceProjectTest.query(clearUsersTable);
     await dbECommerceProjectTest.query(clearProductsTable);
     await dbECommerceProjectTest.query(clearOrdersTable);
     await dbECommerceProjectTest.query(clearCategoriesTable);
+    // await dbECommerceProjectTest.query(clearCartsTable);
     await dbECommerceProjectTest.query(clearCartHasProductsTable);
     await dbECommerceProjectTest.query(clearOrderHasProductsTable);
 
     // Seed tables on database
-    await dbECommerceProjectTest.query(seedUsersTable);
+    // await dbECommerceProjectTest.query(seedUsersTable);
     await dbECommerceProjectTest.query(seedCategoriesTable);
     await dbECommerceProjectTest.query(seedProductsTable);
-    await dbECommerceProjectTest.query(seedOrdersTable);
-    await dbECommerceProjectTest.query(seedCartsTable);
+    // await dbECommerceProjectTest.query(seedOrdersTable);
+    // await dbECommerceProjectTest.query(seedCartsTable);
     await dbECommerceProjectTest.query(seedCartHasProductsTable);
     await dbECommerceProjectTest.query(seedOrderHasProductsTable);
   } catch (err) {
