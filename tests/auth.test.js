@@ -50,14 +50,9 @@ describe("Auth route", () => {
   describe("POST /register", () => {
     // register our test user
     beforeAll(async () => {
-      console.log(userId);
       response = await request(app).post("/auth/register").send(users[0]);
-      console.log(response);
     });
-    afterAll(async () => {
-      userId = response.body.user_id;
-      await request(app).delete(`/users/${userId}`);
-    });
+
     describe("given a username and password in the body", () => {
       it("should return HTTP 200", async () => {
         expect(response.statusCode).toBe(200);
