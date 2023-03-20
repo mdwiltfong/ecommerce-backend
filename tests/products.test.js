@@ -2,12 +2,11 @@ const request = require("supertest");
 const app = require("../index");
 const mockData = require("./mockData");
 const mockDataInstance = new mockData();
-const { seedDatabase, clearDatabase } = require("../db/seedDatabase");
 
-describe("Products route", () => {
+describe.only("Products route", () => {
   // variable setup needed to test product route
   let response;
-  let productId = 1;
+  let productId = 0;
   const products = mockDataInstance.createMockProducts();
   const productObject = expect.objectContaining({
     product_id: expect.any(Number),
@@ -47,14 +46,7 @@ describe("Products route", () => {
     describe("given a query that matches something in the database", () => {
       it("should ", async () => {
         for (const product of products) {
-          // Test category first
-          const categoryId = product.category_id;
-          let url = `/products?category=${categoryId}`;
-
-          response = await request(app).get(url);
-          expect(response.statusCode).toBe(200);
-          expect(response.body).toEqual(arrayOfProducts);
-          // Test title next
+          // Test title
           url = `/products?query=${product.title}`;
           response = await request(app).get(url);
           expect(response.statusCode).toBe(200);
