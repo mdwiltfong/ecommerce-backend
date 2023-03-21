@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../index");
 const User = require("../models/user");
-
+const { clearDatabase } = require("../db/seedDatabase");
 const mockData = require("./mockData");
 
 describe("Auth route", () => {
@@ -50,7 +50,11 @@ describe("Auth route", () => {
   describe("POST /register", () => {
     // register our test user
     beforeAll(async () => {
+      await clearDatabase();
       response = await request(app).post("/auth/register").send(users[0]);
+    });
+    afterAll(async () => {
+      await clearDatabase();
     });
 
     describe("given a username and password in the body", () => {
