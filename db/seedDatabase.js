@@ -24,15 +24,6 @@ const insertOverrideSystemValueIntoQuery = (query) => {
   );
 };
 
-// First clear all the tables to ensure we have a clean slate
-const clearUsersTable = `DELETE FROM users`;
-const clearProductsTable = `DELETE FROM products`;
-const clearOrdersTable = `DELETE FROM orders`;
-const clearCategoriesTable = `DELETE FROM categories`;
-const clearCartsTable = `DELETE FROM carts`;
-const clearCartHasProductsTable = `DELETE FROM cart_has_products`;
-const clearOrderHasProductsTable = `DELETE FROM order_has_products`;
-
 const seedDatabase = async () => {
   // Create all the mock data given the mockData class
   const mockDataInstance = new mockData();

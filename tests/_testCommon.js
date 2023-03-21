@@ -1,3 +1,19 @@
+const { Client } = require("pg");
+const { DB } = require("../config");
+const pgp = require("pg-promise")();
+const dotenv = require("dotenv").config({
+  path: "../.env",
+});
+console.log(dotenv);
+
+// First clear all the tables to ensure we have a clean slate
+const clearUsersTable = `DELETE FROM users`;
+const clearProductsTable = `DELETE FROM products`;
+const clearOrdersTable = `DELETE FROM orders`;
+const clearCategoriesTable = `DELETE FROM categories`;
+const clearCartsTable = `DELETE FROM carts`;
+const clearCartHasProductsTable = `DELETE FROM cart_has_products`;
+const clearOrderHasProductsTable = `DELETE FROM order_has_products`;
 const clearDatabase = async () => {
   const dbECommerceProjectTest = new Client({
     user: DB.PGUSER,

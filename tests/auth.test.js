@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../index");
 const User = require("../models/user");
-const { clearDatabase } = require("../db/seedDatabase");
+const { clearDatabase } = require("./_testCommon.js");
 const mockData = require("./mockData");
 
 describe("Auth route", () => {
