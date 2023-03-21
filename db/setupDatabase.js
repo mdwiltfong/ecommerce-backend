@@ -115,18 +115,18 @@ const { DB } = require("../config");
       ADD CONSTRAINT fk_carts_user_id FOREIGN KEY (user_id)
       REFERENCES public.${DB.USERS_TABLE} (user_id) MATCH SIMPLE
       ON UPDATE NO ACTION
-      ON DELETE NO ACTION;
+      ON DELETE CASCADE;
 
     ALTER TABLE IF EXISTS public.${DB.PRODUCTS_TABLE}
         ADD FOREIGN KEY (category_id)
         REFERENCES public.${DB.CATEGORIES_TABLE} (category_id) MATCH SIMPLE
-        ON UPDATE NO ACTION;
+        ON UPDATE CASCADE;
 
     ALTER TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (cart_id)
         REFERENCES public.${DB.CARTS_TABLE} (cart_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION;
+        ON DELETE CASCADE;
 
 
     ALTER TABLE IF EXISTS public.${DB.CART_HAS_PRODUCTS_TABLE}
@@ -139,21 +139,21 @@ const { DB } = require("../config");
         ADD FOREIGN KEY (user_id)
         REFERENCES public.${DB.USERS_TABLE} (user_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION;
+        ON DELETE CASCADE;
 
 
     ALTER TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (order_id)
         REFERENCES public.${DB.ORDERS_TABLE} (order_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION;
+        ON DELETE CASCADE;
 
 
     ALTER TABLE IF EXISTS public.${DB.ORDER_HAS_PRODUCTS_TABLE}
         ADD FOREIGN KEY (product_id)
         REFERENCES public.${DB.PRODUCTS_TABLE} (product_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION;
+        ON DELETE CASCADE;
   `;
 
   try {

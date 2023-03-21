@@ -13,7 +13,7 @@ const getUserById = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
     const response = await userModel.getUserById(id);
-    res.status(200).send(response);
+    res.status(200).json(response);
   } catch (err) {
     next(err);
   }
