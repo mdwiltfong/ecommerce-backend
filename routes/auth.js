@@ -19,5 +19,5 @@ module.exports = (app, passport) => {
       res.status(200).send(user);
     }
   );
-  router.post("/logout", authController.logout);
+  router.post("/logout", isLoggedIn, authController.logout);
 };

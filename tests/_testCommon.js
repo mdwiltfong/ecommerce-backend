@@ -4,7 +4,6 @@ const pgp = require("pg-promise")();
 const dotenv = require("dotenv").config({
   path: "../.env",
 });
-console.log(dotenv);
 
 // First clear all the tables to ensure we have a clean slate
 const clearUsersTable = `DELETE FROM users`;
