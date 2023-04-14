@@ -10,15 +10,19 @@ module.exports = (app) => {
   app.use(passport.session());
 
   // Set method to serialize data to store in cookie
+  // Registers a function used to serialize user objects into the session.
   passport.serializeUser((user, done) => {
-    done(null, user);
+    console.log(user);
+    done(null, user.user_id);
   });
 
   // Set method to deserialize data stored in cookie and attach to req.user
+  // Registers a function used to deserialize user objects out of the session.
   passport.deserializeUser(async ({ user_id }, done) => {
     try {
       const user = await userModel.getUserById(user_id);
       const cart_id = await cartModel.getCartIdByUserId(user_id);
+      console.log(user, "DESERIALIZE USER");
       return done(null, { ...user, cart_id });
     } catch (err) {
       done(err);
@@ -33,6 +37,7 @@ module.exports = (app) => {
         try {
           // Check for user in PostgreSQL database
           const user = await User.loginUser({ email, password });
+          console.log(user, "LocalStrategy");
           return done(null, user);
         } catch (err) {
           return done(err);
