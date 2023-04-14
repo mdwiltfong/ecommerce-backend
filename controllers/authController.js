@@ -11,11 +11,20 @@ const registerNewUser = async (req, res, next) => {
     res.status(400).send({ message: `Missing email or password information!` });
   }
   try {
-    const user = await userModel.registerNewUser(data);
-    if (!user) throw new Error("User couldn't be created");
+    const userData = await userModel.registerNewUser(data);
+    if (!userData) throw new Error("User couldn't be created");
 
-    const cart = await cartModel.createCart(user.user_id);
-    res.status(200).send({ ...user, ...cart });
+    const cart = await cartModel.createCart(userData.user_id);
+    const user = { ...userData, cart };
+
+    req.login(user, (err) => {
+      console.log("Registration successful.. Logging in user...");
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
+    //res.status(200).send({ ...user, ...cart });
   } catch (err) {
     next(err);
   }
@@ -26,7 +35,7 @@ const logout = (req, res, next) => {
     if (err) return next(err);
     res.clearCookie("connect.sid");
     req.session.destroy();
-    res.redirect("/auth/login");
+    res.status(200).send("LOGGED OUT");
   });
 };
 
