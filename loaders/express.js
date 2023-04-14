@@ -3,12 +3,16 @@ const cors = require("cors");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 const pgPool = require("../db/index");
-
 const config = require("../config");
 
 module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+      credentials: true,
+    })
+  );
 
   // Logging
   //app.use(morgan("dev"));   // Normal dev logging
@@ -36,7 +40,7 @@ module.exports = (app) => {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   //
-  app.set("trust proxy", 1);
+  //app.set("trust proxy", 1);
 
   // Creates a session
   app.use(
@@ -47,7 +51,7 @@ module.exports = (app) => {
       }),
       secret: config.SESSION.SESSION_SECRET,
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true,
       cookie: config.SESSION.COOKIE,
     })
   );
