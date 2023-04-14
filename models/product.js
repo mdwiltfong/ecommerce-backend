@@ -136,12 +136,10 @@ const deleteProductById = async (id) => {
 
   try {
     const result = await pool.query(query);
+    return null;
   } catch (err) {
     throw err;
   }
-  // no news is good news, if we made it this far
-  // that means the product was deleted, return null
-  return null;
 };
 
 const getCategoryId = async (category) => {

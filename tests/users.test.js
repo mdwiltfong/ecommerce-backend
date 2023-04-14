@@ -1,6 +1,5 @@
 const request = require("supertest");
 const app = require("../index");
-const { seedDatabase, clearDatabase } = require("../db/seedDatabase");
 // create our mockData
 
 const mockData = require("./mockData");
@@ -16,20 +15,31 @@ let mockDataInstance = new mockData();
 
 describe("Users route", () => {
   let response;
-  const users = mockDataInstance.getMockUsers();
+  // create test users
+  const users = mockDataInstance.createMockUsers();
+  // change later after registering our test user
+  let userId;
+  beforeAll(async () => {
+    // register one of the users
+    response = await request(app).post("/auth/register").send(users[0]);
+    userId = response.body.userId;
+  });
+
+  afterAll(async () => {
+    // delete test user after done
+    response = await request(app).delete(`/users/${userId}`);
+  });
   const userObject = expect.objectContaining({
     user_id: expect.any(Number),
-    cart_id: null,
     fname: expect.any(String),
     lname: expect.any(String),
     email: expect.any(String),
     password: expect.any(String),
+    isadmin: expect.any(Boolean),
   });
   const messageObject = expect.objectContaining({
     message: expect.any(String),
   });
-  // we will change this to match the first user
-  let userId = 1;
 
   describe("GET /users", () => {
     beforeAll(async () => {
