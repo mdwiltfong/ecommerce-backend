@@ -6,7 +6,8 @@ const dotenv = require("dotenv").config({
 const { PORT } = require("./config");
 
 app.get("/", (req, res, next) => {
-  res.send("Main page! :)))))");
+  console.log(req.user, "req.user from root path");
+  res.send(req);
 });
 
 app.listen(PORT, () => {
