@@ -13,12 +13,12 @@ module.exports = (app) => {
   // Registers a function used to serialize user objects into the session.
   passport.serializeUser((user, done) => {
     console.log(user);
-    done(null, user.user_id);
+    done(null, user);
   });
 
   // Set method to deserialize data stored in cookie and attach to req.user
   // Registers a function used to deserialize user objects out of the session.
-  passport.deserializeUser(async ({ user_id }, done) => {
+  passport.deserializeUser(async (user_id, done) => {
     try {
       const user = await userModel.getUserById(user_id);
       const cart_id = await cartModel.getCartIdByUserId(user_id);

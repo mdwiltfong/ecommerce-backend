@@ -4,7 +4,7 @@
   "description": "eCommerce Backend portion",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -r dotenv/config server.js",
+    "start": "NODE_ENV=development nodemon -r dotenv/config server.js",
     "create-db": "node db/setupDatabase.js",
     "seed-db": "node db/seedDatabase.js",
     "test": "jest --forceExit --runInBand"

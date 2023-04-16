@@ -5,11 +5,23 @@ const pgSession = require("connect-pg-simple")(session);
 const pgPool = require("../db/index");
 const config = require("../config");
 
+function dynamicOriginConfig(origin, callback) {
+  if (process.env.NODE_ENV === "development") {
+    callback(null, true);
+    return;
+  }
+  if (process.env.WHITE_LIST.indexOf(origin) !== -1) {
+    callback(null, true);
+  } else {
+    callback(new Error("Not allowed by CORS"));
+  }
+}
+
 module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: dynamicOriginConfig,
       credentials: true,
     })
   );
