@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const { isLoggedIn } = require("../middleware/auth");
+const { ExpressErrorHandler } = require("../helperFunctions");
 
 module.exports = (app, passport) => {
   app.use("/auth", router);
@@ -11,14 +12,18 @@ module.exports = (app, passport) => {
     "/login",
     passport.authenticate("local"),
     async (req, res, next) => {
-      console.log("making it here?");
-      const user = req.user;
-      console.log(user, "req.user TESTTTTTTTTT");
-      if (!user) {
-        // we didnt get a user back from passport authenticate
-        res.status(401).send({ message: "Incorrect username or password" });
+      try {
+        console.log("making it here?");
+        const user = req.user;
+        console.log(user, "req.user TESTTTTTTTTT");
+        if (!user) {
+          // we didnt get a user back from passport authenticate
+          throw new ExpressErrorHandler(401, "Incorrect username or password");
+        }
+        res.status(200).send(user);
+      } catch (error) {
+        next(error);
       }
-      res.status(200).send(user);
     }
   );
   router.post("/logout", authController.logout);

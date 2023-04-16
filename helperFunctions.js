@@ -17,4 +17,11 @@ function enviornmentVariablesChecker(dotenv) {
   }
 }
 
-module.exports = { enviornmentVariablesChecker };
+class ExpressErrorHandler extends Error {
+  constructor(status, message) {
+    super();
+    this.status = status;
+    this.message = message;
+  }
+}
+module.exports = { enviornmentVariablesChecker, ExpressErrorHandler };
