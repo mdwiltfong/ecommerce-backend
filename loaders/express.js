@@ -6,7 +6,10 @@ const pgPool = require("../db/index");
 const config = require("../config");
 
 function dynamicOriginConfig(origin, callback) {
-  if (process.env.NODE_ENV === "development") {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test"
+  ) {
     callback(null, true);
     return;
   }
